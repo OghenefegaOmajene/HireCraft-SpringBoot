@@ -6,7 +6,7 @@ import Daniel24356.com.Ecommerce.dtos.response.MessageResponse;
 import java.util.List;
 
 public interface ProductService {
-   ProductRequest createProduct(ProductRequest dto, Long userId);
+   ProductDTO createProduct(ProductRequest dto, Long userId);
    List<ProductRequest> getAllProducts();
    ProductRequest getProductById(Long id);
    List<ProductRequest> getProductsByUser(Long userId);
