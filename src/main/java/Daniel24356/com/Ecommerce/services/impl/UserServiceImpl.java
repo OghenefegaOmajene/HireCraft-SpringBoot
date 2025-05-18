@@ -2,6 +2,7 @@ package Daniel24356.com.Ecommerce.services.impl;
 
 import Daniel24356.com.Ecommerce.repository.UserRepository;
 import Daniel24356.com.Ecommerce.services.UserService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import Daniel24356.com.Ecommerce.dtos.response.UserListResponse;
 import Daniel24356.com.Ecommerce.exceptions.UserNotFoundException;
 import Daniel24356.com.Ecommerce.models.User;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +72,13 @@ public class UserServiceImpl implements UserService {
                 updated.getCreatedAt(),
                 updated.getUpdatedAt()
         );
+    }
+
+    @Override
+    public Long getUserIdFromPrincipal(Principal principal) {
+        return userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"))
+                .getId();
     }
 
     @Override

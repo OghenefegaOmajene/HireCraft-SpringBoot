@@ -28,6 +28,8 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    private String phoneNumber;
+
     private String firstName;
     private String lastName;
 
@@ -61,4 +63,5 @@ public class User {
     void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
 }

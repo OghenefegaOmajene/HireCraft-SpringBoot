@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public MessageResponse deleteProduct(Long productId, Long userId) {
+    public String deleteProduct(Long productId, Long userId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found"));
 
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.delete(product);
 
-        return new ResponseMessageDTO("Product deleted successfully", true);
+        return "Product deleted Successfully";
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setImageUrl(product.getImageUrl());
         dto.setContactInfo(product.getContactInfo());
         dto.setPostedAt(product.getPostedAt());
-        dto.setSellerUsername(product.getSeller().getUsername());
+        dto.setSellerUsername(product.getSellerUsername());
         return dto;
     }
 }

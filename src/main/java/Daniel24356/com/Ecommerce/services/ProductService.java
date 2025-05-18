@@ -6,10 +6,10 @@ import Daniel24356.com.Ecommerce.dtos.response.MessageResponse;
 import java.util.List;
 
 public interface ProductService {
-   ProductDTO createProduct(ProductRequest dto, Long userId);
+   ProductRequest createProduct(ProductRequest dto, Long userId);
    List<ProductRequest> getAllProducts();
    ProductRequest getProductById(Long id);
    List<ProductRequest> getProductsByUser(Long userId);
-   MessageResponse deleteProduct(Long productId, Long userId);
+   String deleteProduct(Long productId, Long userId);
    List<ProductRequest> searchProducts(String keyword);
 }
