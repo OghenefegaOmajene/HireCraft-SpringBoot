@@ -37,6 +37,9 @@ public class User {
     @Column(nullable = false)
     private UserStatus status;
 
+    @Column(name = "profile_picture_url", length = 512)
+    private String profilePictureUrl;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

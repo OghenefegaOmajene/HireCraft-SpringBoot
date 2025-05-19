@@ -1,5 +1,9 @@
 package Daniel24356.com.Ecommerce.controllers;
 
+import Daniel24356.com.Ecommerce.dtos.requests.ForgetPasswordRequest;
+import Daniel24356.com.Ecommerce.dtos.requests.ResetPasswordRequest;
+import Daniel24356.com.Ecommerce.dtos.response.ForgotPasswordResponse;
+import Daniel24356.com.Ecommerce.dtos.response.ResetPasswordResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +34,17 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(
+            @Valid @RequestBody ForgetPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResetPasswordResponse> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }
