@@ -7,16 +7,14 @@ import Daniel24356.com.Ecommerce.dtos.response.ResetPasswordResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import Daniel24356.com.Ecommerce.dtos.requests.LoginRequest;
 import Daniel24356.com.Ecommerce.dtos.requests.RegisterRequest;
 import Daniel24356.com.Ecommerce.dtos.response.LoginResponse;
 import Daniel24356.com.Ecommerce.dtos.response.RegisterResponse;
 import Daniel24356.com.Ecommerce.services.AuthService;
 
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
