@@ -36,6 +36,10 @@ public class UserServiceImpl implements UserService {
                         user.getFirstName(),
                         user.getLastName(),
                         user.getEmail(),
+                        user.getPhoneNumber(),
+                        user.getCity(),
+                        user.getState(),
+                        user.getCountry(),
                         user.getStatus().name()
                 ))
                 .collect(Collectors.toList());
@@ -56,7 +60,11 @@ public class UserServiceImpl implements UserService {
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        // optionally update email or other fields
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setCountry(request.getCountry());
+        user.setState(request.getState());
+        user.setCity(request.getCity());
         user.setUpdatedAt(java.time.LocalDateTime.now());
 
         User updated = userRepository.save(user);
@@ -123,6 +131,10 @@ public class UserServiceImpl implements UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
+                user.getPhoneNumber(),
+                user.getCountry(),
+                user.getState(),
+                user.getCity(),
                 user.getStatus().name(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),

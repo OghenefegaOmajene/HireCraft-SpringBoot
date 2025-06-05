@@ -20,5 +20,21 @@ public class UserUpdateRequest {
 
     @NotBlank(message = "Last name must not be blank")
     private String lastName;
+
+    @NotBlank(message = "First name must not be blank")
+    private String email;
+
+    @NotBlank(message = "Last name must not be blank")
+    private String phoneNumber;
+
+    @NotBlank(message = "First name must not be blank")
+    private String country;
+
+    @NotBlank(message = "Last name must not be blank")
+    private String state;
+
+    @NotBlank(message = "First name must not be blank")
+    private String city;
+
 }
 

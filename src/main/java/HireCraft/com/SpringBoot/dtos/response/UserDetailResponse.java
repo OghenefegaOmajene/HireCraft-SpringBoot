@@ -14,9 +14,14 @@ public class UserDetailResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private String phoneNumber;
     private String status;
+    private String city;
+    private String state;
+    private String country;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String profilePictureUrl;
+
 }
 
