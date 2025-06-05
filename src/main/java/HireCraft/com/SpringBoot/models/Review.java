@@ -17,9 +17,17 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private double ratingNo;
+    @Column(nullable = false)
+    private Double ratingNo;
 
     private String reviewTxt;
+
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private User client;
+
+    @ManyToOne
+    @JoinColumn(name = "provider_id")
+    private User provider;
 
 }

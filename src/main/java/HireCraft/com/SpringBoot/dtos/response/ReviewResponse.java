@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ReviewResponse {
-    private String rating;
+    private Double rating;
     private String reviewTxt;
 }
