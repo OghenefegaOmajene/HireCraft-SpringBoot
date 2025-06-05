@@ -1,9 +1,12 @@
 package HireCraft.com.SpringBoot.controllers;
 
+import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
 import HireCraft.com.SpringBoot.services.ReviewService;
 import HireCraft.com.SpringBoot.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +17,12 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+
+    @PostMapping
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request) {
+        ReviewResponse response = reviewService.createReview(request);
+        return ResponseEntity.ok(response);
+    }
 
     // 1. Get all reviews ever
     @GetMapping("/all")

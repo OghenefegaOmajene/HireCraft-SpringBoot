@@ -1,6 +1,7 @@
 package HireCraft.com.SpringBoot.enums;
 
 public enum RoleName {
-    ROLE_USER,
+    ROLE_PROVIDER,
+    ROLE_CLIENT,
     ROLE_ADMIN
 }

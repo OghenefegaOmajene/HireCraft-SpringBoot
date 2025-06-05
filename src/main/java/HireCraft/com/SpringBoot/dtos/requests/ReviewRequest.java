@@ -19,4 +19,9 @@ public class ReviewRequest {
 
     @NotBlank(message = "Enter a review")
     private String reviewTxt;
+
+    private Long clientId;
+
+    private Long providerId;
+
 }
