@@ -7,6 +7,8 @@ import HireCraft.com.SpringBoot.dtos.response.ForgotPasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ResetPasswordResponse;
 import HireCraft.com.SpringBoot.exceptions.InvalidResetTokenException;
 import HireCraft.com.SpringBoot.models.PasswordResetToken;
+import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
+import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.AuthService;
 import HireCraft.com.SpringBoot.dtos.requests.LoginRequest;
@@ -32,6 +34,7 @@ import HireCraft.com.SpringBoot.repository.PasswordResetTokenRepository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordResetTokenRepository tokenRepository;
+    private final ServiceProviderProfileRepository serviceProviderProfileRepository;
     private static final int TOKEN_LENGTH = 6;
     private static final int TOKEN_EXPIRY_MINUTES = 15;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -55,9 +59,8 @@ public class AuthServiceImpl implements AuthService {
             );
         }
 
-        // 2. Fetch default role (ROLE_USER)
-        Role defaultRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new IllegalStateException("Default role ROLE_USER not found"));
+        Role userRole = roleRepository.findByName(request.getRole())
+                .orElseThrow(() -> new IllegalStateException("Role not found"));
 
         // 3. Build User entity
         User user = User.builder()
@@ -72,16 +75,30 @@ public class AuthServiceImpl implements AuthService {
                 .status(UserStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .roles(Collections.singleton(defaultRole))
+                .roles(Collections.singleton(userRole))
                 .build();
 
         // 4. Persist
-        User saved = userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // 🎯 If provider, create ServiceProviderProfile
+        if ("ROLE_PROVIDER".equals(request.getRole())) {
+            ServiceProviderProfile profile = ServiceProviderProfile.builder()
+                    .profession(request.getProfession())
+                    .bio(null)            // Optional, can be updated later
+                    .cvUrl(null)          // Optional
+                    .averageRating(0.0)   // Initial rating
+                    .skills(new HashSet<>()) // Empty set
+                    .user(savedUser)
+                    .build();
+
+            serviceProviderProfileRepository.save(profile); // Inject this repository
+        }
 
         // 5. Return response
         return RegisterResponse.builder()
-                .userId(saved.getId())
-                .message("Registration successful for user: " + saved.getEmail())
+                .userId(savedUser.getId())
+                .message("Registration successful for user: " + savedUser.getEmail())
                 .build();
     }
 
