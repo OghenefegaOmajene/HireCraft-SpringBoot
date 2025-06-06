@@ -17,7 +17,7 @@ public class ServiceProviderProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String profession;
+    private String occupation;
 
     @Column(length = 1000)
     private String bio;

@@ -3,8 +3,8 @@ package HireCraft.com.SpringBoot.dtos.requests;
 import lombok.Data;
 
 @Data
-public class ServiceProviderProfileRequest {
-    private String occupation;
+public class UpdateClientProfileRequest {
     private String bio;
-    private String cvUrl;
+    private String companyWebsiteUrl;
 }
+

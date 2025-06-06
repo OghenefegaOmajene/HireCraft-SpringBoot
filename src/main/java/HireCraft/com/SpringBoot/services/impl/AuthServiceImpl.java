@@ -6,16 +6,13 @@ import HireCraft.com.SpringBoot.dtos.requests.ResetPasswordRequest;
 import HireCraft.com.SpringBoot.dtos.response.ForgotPasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ResetPasswordResponse;
 import HireCraft.com.SpringBoot.exceptions.InvalidResetTokenException;
-import HireCraft.com.SpringBoot.models.PasswordResetToken;
-import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
-import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
-import HireCraft.com.SpringBoot.repository.UserRepository;
+import HireCraft.com.SpringBoot.models.*;
+import HireCraft.com.SpringBoot.repository.*;
 import HireCraft.com.SpringBoot.services.AuthService;
 import HireCraft.com.SpringBoot.dtos.requests.LoginRequest;
 import HireCraft.com.SpringBoot.dtos.response.LoginResponse;
 import HireCraft.com.SpringBoot.dtos.response.RegisterResponse;
 import HireCraft.com.SpringBoot.enums.UserStatus;
-import HireCraft.com.SpringBoot.models.User;
 import HireCraft.com.SpringBoot.security.jwt.JwtTokenProvider;
 import HireCraft.com.SpringBoot.utils.PasswordUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import HireCraft.com.SpringBoot.exceptions.UserAlreadyExistsException;
-import HireCraft.com.SpringBoot.models.Role;
-import HireCraft.com.SpringBoot.repository.RoleRepository;
-import HireCraft.com.SpringBoot.repository.PasswordResetTokenRepository;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -45,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordResetTokenRepository tokenRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
+    private final ClientProfileRepository clientProfileRepository;
     private static final int TOKEN_LENGTH = 6;
     private static final int TOKEN_EXPIRY_MINUTES = 15;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -84,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         // 🎯 If provider, create ServiceProviderProfile
         if ("ROLE_PROVIDER".equals(request.getRole())) {
             ServiceProviderProfile profile = ServiceProviderProfile.builder()
-                    .profession(request.getProfession())
+                    .occupation(request.getOccupation())
                     .bio(null)            // Optional, can be updated later
                     .cvUrl(null)          // Optional
                     .averageRating(0.0)   // Initial rating
@@ -94,6 +89,20 @@ public class AuthServiceImpl implements AuthService {
 
             serviceProviderProfileRepository.save(profile); // Inject this repository
         }
+
+        if ("ROLE_CLIENT".equals(request.getRole())) {
+            ClientProfile clientProfile = ClientProfile.builder()
+                    .position(request.getPosition())
+                    .profession(request.getProfession())
+                    .companyName(null)
+                    .bio(null)
+                    .companyWebsiteUrl(null)
+                    .user(savedUser)
+                    .build();
+
+            clientProfileRepository.save(clientProfile);
+        }
+
 
         // 5. Return response
         return RegisterResponse.builder()
