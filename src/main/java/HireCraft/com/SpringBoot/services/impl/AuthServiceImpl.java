@@ -76,6 +76,19 @@ public class AuthServiceImpl implements AuthService {
         // 4. Persist
         User savedUser = userRepository.save(user);
 
+        if ("ROLE_PROVIDER".equalsIgnoreCase(request.getRole())) {
+            if (request.getOccupation() == null || request.getOccupation().isBlank()) {
+                throw new IllegalArgumentException("Occupation is required for service providers.");
+            }
+        } else if ("ROLE_CLIENT".equalsIgnoreCase(request.getRole())) {
+            if (request.getProfession() == null || request.getProfession().isBlank()) {
+                throw new IllegalArgumentException("Profession is required for clients.");
+            }
+            if (request.getPosition() == null || request.getPosition().isBlank()) {
+                throw new IllegalArgumentException("Position is required for clients.");
+            }
+        }
+
         // 🎯 If provider, create ServiceProviderProfile
         if ("ROLE_PROVIDER".equals(request.getRole())) {
             ServiceProviderProfile profile = ServiceProviderProfile.builder()

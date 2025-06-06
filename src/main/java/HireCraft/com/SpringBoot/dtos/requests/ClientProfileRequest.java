@@ -6,6 +6,5 @@ import lombok.Data;
 public class ClientProfileRequest {
     private String position;
     private String profession;
-    private String companyName;
 }
 

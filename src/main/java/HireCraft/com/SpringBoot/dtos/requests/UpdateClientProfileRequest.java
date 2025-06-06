@@ -6,5 +6,6 @@ import lombok.Data;
 public class UpdateClientProfileRequest {
     private String bio;
     private String companyWebsiteUrl;
+    private String companyName;
 }
 
