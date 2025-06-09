@@ -4,25 +4,29 @@ import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.services.BookingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/bookings")
+@RequestMapping("/api/bookings")
 @RequiredArgsConstructor
 public class BookingController {
 
     private final BookingService bookingService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingRequest request) {
-        return ResponseEntity.ok(bookingService.createBooking(request));
+        BookingResponse response = bookingService.createBooking(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<BookingResponse>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    @GetMapping("/provider/{providerId}")
+    public ResponseEntity<List<BookingResponse>> getBookingsForProvider(@PathVariable Long providerId) {
+        List<BookingResponse> responses = bookingService.getBookingsForProvider(providerId);
+        return ResponseEntity.ok(responses);
     }
 }
+

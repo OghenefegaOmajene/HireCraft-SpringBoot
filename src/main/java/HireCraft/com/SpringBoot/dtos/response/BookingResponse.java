@@ -1,6 +1,5 @@
 package HireCraft.com.SpringBoot.dtos.response;
 
-import HireCraft.com.SpringBoot.enums.BookingStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +12,7 @@ public class BookingResponse {
     private String description;
     private String location;
     private String timeSlot;
+    private String estimatedDuration;
     private String status;
     private String timeAgo;
 }

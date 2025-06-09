@@ -4,10 +4,15 @@ import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.enums.BookingStatus;
 import HireCraft.com.SpringBoot.models.Booking;
+import HireCraft.com.SpringBoot.models.ClientProfile;
+import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
 import HireCraft.com.SpringBoot.models.User;
 import HireCraft.com.SpringBoot.repository.BookingRepository;
+import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
+import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.BookingService;
+import HireCraft.com.SpringBoot.utils.TimeAgoUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,57 +26,61 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    private final ClientProfileRepository clientProfileRepository;
+    private final ServiceProviderProfileRepository providerProfileRepository;
+    private final TimeAgoUtil timeAgoUtil;
 
     @Override
     public BookingResponse createBooking(BookingRequest request) {
-        User client = userRepository.findById(request.getClientId())
+        ClientProfile clientProfile = clientProfileRepository.findById(request.getClientId())
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        User provider = userRepository.findById(request.getProviderId())
+        ServiceProviderProfile providerProfile = providerProfileRepository.findById(request.getProviderId())
                 .orElseThrow(() -> new RuntimeException("Provider not found"));
 
         Booking booking = new Booking();
-        booking.setClient(client);
-        booking.setProvider(provider);
-        booking.setBookingDate(request.getBookingDate());
+        booking.setClientProfile(clientProfile);
+        booking.setProviderProfile(providerProfile);
         booking.setTimeSlot(request.getTimeSlot());
         booking.setLocation(request.getLocation());
         booking.setDescription(request.getDescription());
-        booking.setStatus(BookingStatus.PENDING); // default status
+        booking.setEstimatedDuration(request.getEstimatedDuration());
+        booking.setStatus(BookingStatus.PENDING);
+
         bookingRepository.save(booking);
 
         return mapToResponse(booking);
     }
 
     @Override
-    public List<BookingResponse> getAllBookings() {
-        return bookingRepository.findAll().stream()
+    public List<BookingResponse> getBookingsForProvider(Long providerId) {
+        return bookingRepository.findById(providerId)
+                .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     private BookingResponse mapToResponse(Booking booking) {
+        User clientUser = booking.getClientProfile().getUser();
+
+        String fullName = clientUser.getFirstName() + " " + clientUser.getLastName();
+        String location = clientUser.getCity() + ", " + clientUser.getState() + ", " + clientUser.getCountry();
+        String timeAgo = timeAgoUtil.format(booking.getCreatedAt());
+
         BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
-        response.setClientName(booking.getClient().getFullName());
-        response.setProviderName(booking.getProvider().getFullName());
+        response.setClientName(fullName);
+        response.setProviderName(booking.getProviderProfile().getUser().getFirstName());
         response.setDescription(booking.getDescription());
-        response.setLocation(booking.getLocation());
+        response.setLocation(location);
         response.setTimeSlot(booking.getTimeSlot());
+        response.setEstimatedDuration(booking.getEstimatedDuration());
         response.setStatus(booking.getStatus().name());
-        response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+        response.setTimeAgo(timeAgo);
+
         return response;
     }
-
-    private String getTimeAgo(LocalDateTime createdAt) {
-        Duration duration = Duration.between(createdAt, LocalDateTime.now());
-
-        if (duration.toMinutes() < 1) return "Just now";
-        if (duration.toMinutes() < 60) return duration.toMinutes() + " min(s) ago";
-        if (duration.toHours() < 24) return duration.toHours() + " hour(s) ago";
-        if (duration.toDays() < 30) return duration.toDays() + " day(s) ago";
-        if (duration.toDays() < 365) return (duration.toDays() / 30) + " month(s) ago";
-        return (duration.toDays() / 365) + " year(s) ago";
-    }
 }
+
+
+

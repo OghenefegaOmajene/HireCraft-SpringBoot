@@ -13,25 +13,26 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Booking {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private User client;
+    private ClientProfile clientProfile;
 
     @ManyToOne
-    private User provider;
+    private ServiceProviderProfile providerProfile;
 
-    private LocalDate bookingDate;
     private String timeSlot;
     private String location;
     private String description;
+    private String estimatedDuration;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }
+

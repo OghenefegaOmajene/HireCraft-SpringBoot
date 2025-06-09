@@ -10,8 +10,9 @@ import java.time.LocalDate;
 public class BookingRequest {
     private Long clientId;
     private Long providerId;
-    private LocalDate bookingDate;
-    private String timeSlot;
     private String location;
+    private String timeSlot;
+    private String estimatedDuration;
     private String description;
 }
+
