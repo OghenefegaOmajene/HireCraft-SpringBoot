@@ -76,4 +76,8 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
 }
