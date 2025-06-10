@@ -3,7 +3,7 @@ package HireCraft.com.SpringBoot.enums;
 public enum BookingStatus {
     PENDING,
     ACCEPTED,
-    REJECTED,
+    DECLINED,
     COMPLETED,
     CANCELLED
 }

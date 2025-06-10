@@ -15,6 +15,7 @@ public enum PermissionName {
         RECEIVE_MESSAGE,
 
         //Provider Permissions
+        UPDATE_BOOKING_REQUEST_STATUS,
         ACCEPT_BOOKING_REQUEST,
         DECLINE_BOOKING_REQUEST,
         UPLOAD_CV,
@@ -23,6 +24,7 @@ public enum PermissionName {
         WITHDRAW_PAYMENT,
         VIEW_EARNING_HISTORY,
         VIEW_PROVIDER_REVIEWS,
+        VIEW_BOOKING_REQUEST_PROVIDER,
 
         //Client Permissions
         BOOK_SERVICE_PROVIDER,
@@ -31,6 +33,7 @@ public enum PermissionName {
         CANCEL_BOOKING_REQUEST,
         VIEW_CLIENT_REVIEWS,
         VIEW_PAYMENT_HISTORY,
+        VIEW_BOOKING_REQUEST_CLIENT,
 
         //System Settings
         MANAGE_SETTINGS,

@@ -36,19 +36,19 @@ public class ReviewController {
     }
 
     @GetMapping("/provider/{providerId}")
-    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
+    @PreAuthorize("hasAuthority('VIEW_PROVIDER_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsForProvider(@PathVariable Long providerId) {
         return reviewService.getReviewsForProvider(providerId);
     }
 
     @GetMapping("/client/{clientId}")
-    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
+    @PreAuthorize("hasAuthority('VIEW_CLIENT_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsByClient(@PathVariable Long clientId) {
         return reviewService.getReviewsByClient(clientId);
     }
 
     @GetMapping("/client/{clientId}/provider/{providerId}")
-    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
+    @PreAuthorize("hasAuthority('VIEW_CLIENT_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsByClientForProvider(@PathVariable Long clientId,
                                                               @PathVariable Long providerId) {
         return reviewService.getReviewsByClientForProvider(clientId, providerId);
