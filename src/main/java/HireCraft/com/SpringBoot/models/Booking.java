@@ -4,6 +4,7 @@ import HireCraft.com.SpringBoot.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class Booking {
     @ManyToOne
     private ServiceProviderProfile providerProfile;
 
+
     private String timeSlot;
     private String location;
     private String description;
@@ -34,5 +36,7 @@ public class Booking {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+
 }
 

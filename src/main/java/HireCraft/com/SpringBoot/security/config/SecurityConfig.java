@@ -61,6 +61,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/users/me").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
+                        .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile-picture").authenticated()
                         // all other calls require MANAGE_USERS
                         .anyRequest().hasAuthority("MANAGE_USERS")

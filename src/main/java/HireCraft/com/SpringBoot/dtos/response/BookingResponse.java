@@ -7,12 +7,17 @@ import lombok.Setter;
 @Setter
 public class BookingResponse {
     private Long id;
-    private String clientName;
-    private String providerName;
-    private String description;
-    private String location;
+    private String clientFullName;
+    private String clientCompany;
+    private String clientPosition;
+
+    private String city;
+    private String state;
+    private String country;
+
     private String timeSlot;
     private String estimatedDuration;
-    private String status;
+    private String description;
     private String timeAgo;
+    private String status;
 }

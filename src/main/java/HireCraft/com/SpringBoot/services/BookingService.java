@@ -2,12 +2,12 @@ package HireCraft.com.SpringBoot.services;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
 public interface BookingService {
-    BookingResponse createBooking(BookingRequest request);
+    BookingResponse createBooking(BookingRequest request, UserDetails userDetails);
     List<BookingResponse> getBookingsForProvider(Long providerId);
+    void updateStatus(Long bookingId, String status);
 }
-
-
