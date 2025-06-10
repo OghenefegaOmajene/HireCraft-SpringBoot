@@ -1,7 +1,11 @@
 package HireCraft.com.SpringBoot.dtos.response;
 
+import lombok.Data;
 
+@Data
 public class MessageResponse {
-    private String message;
-    private boolean success;
+    private String senderType; // "CLIENT" or "PROVIDER"
+    private String content; // decrypted
+    private String sentAt; // e.g., "Yesterday", "Today", "3:45 PM"
 }
+

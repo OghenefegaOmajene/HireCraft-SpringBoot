@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.controllers;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
+import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.services.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,11 +32,12 @@ public class BookingController {
         return bookingService.getBookingsForProvider(providerId);
     }
 
-    @GetMapping("/client")
+    @GetMapping("/client/me")
     @PreAuthorize("hasAuthority('VIEW_BOOKING_REQUEST_CLIENT')")
     public List<ClientBookingViewResponse> getClientBookings(@AuthenticationPrincipal UserDetails userDetails) {
         return bookingService.getBookingsForClient(userDetails);
     }
+
 
     @PutMapping("/{bookingId}/status")
     @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")

@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile-picture").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/bookings/provider/{providerId}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/status").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/client/me").authenticated()
                         // Only users with the ADD_REVIEW permission
                         .requestMatchers(HttpMethod.POST, "/api/v1/reviews/create-review").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/all").authenticated()
