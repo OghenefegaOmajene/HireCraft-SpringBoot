@@ -31,11 +31,11 @@ public class BookingController {
         return bookingService.getBookingsForProvider(providerId);
     }
 
-//    @GetMapping("/client/{clientId}")
-//    @PreAuthorize("hasAuthority('VIEW_BOOKING_REQUEST_CLIENT')")
-//    public List<BookingResponse> getProviderBookings(@PathVariable Long clientId) {
-//        return bookingService.getBookingsForClient(clientId);
-//    }
+    @GetMapping("/client")
+    @PreAuthorize("hasAuthority('VIEW_BOOKING_REQUEST_CLIENT')")
+    public List<ClientBookingViewResponse> getClientBookings(@AuthenticationPrincipal UserDetails userDetails) {
+        return bookingService.getBookingsForClient(userDetails);
+    }
 
     @PutMapping("/{bookingId}/status")
     @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")

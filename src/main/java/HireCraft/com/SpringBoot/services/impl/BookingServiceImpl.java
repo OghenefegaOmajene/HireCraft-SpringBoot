@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
+import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.enums.BookingStatus;
 import HireCraft.com.SpringBoot.models.Booking;
 import HireCraft.com.SpringBoot.models.ClientProfile;
@@ -59,6 +60,34 @@ public class BookingServiceImpl implements BookingService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails) {
+        ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Client profile not found"));
+
+        return bookingRepository.findByClientProfile_Id(clientProfile.getId())
+                .stream()
+                .map(this::mapToClientViewResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ClientBookingViewResponse mapToClientViewResponse(Booking booking) {
+        ClientBookingViewResponse response = new ClientBookingViewResponse();
+        User providerUser = booking.getProviderProfile().getUser();
+
+        response.setId(booking.getId());
+        response.setProviderFullName(providerUser.getFirstName() + " " + providerUser.getLastName());
+        response.setOccupation(booking.getProviderProfile().getOccupation());
+
+        response.setCity(providerUser.getCity());
+        response.setState(providerUser.getState());
+        response.setCountry(providerUser.getCountry());
+        response.setStatus(booking.getStatus().name());
+        response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+
+        return response;
     }
 
     @Override

@@ -16,8 +16,6 @@ public enum PermissionName {
 
         //Provider Permissions
         UPDATE_BOOKING_REQUEST_STATUS,
-        ACCEPT_BOOKING_REQUEST,
-        DECLINE_BOOKING_REQUEST,
         UPLOAD_CV,
         UPLOAD_PORTFOLIO_IMAGES,
         RECEIVE_PAYMENT,
