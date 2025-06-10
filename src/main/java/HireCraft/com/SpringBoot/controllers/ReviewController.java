@@ -7,6 +7,8 @@ import HireCraft.com.SpringBoot.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +21,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/create-review")
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request) {
-        ReviewResponse response = reviewService.createReview(request);
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        ReviewResponse response = reviewService.createReview(request, userDetails);
         return ResponseEntity.ok(response);
     }
+
 
     // 1. Get all reviews ever
     @GetMapping("/all")

@@ -26,11 +26,11 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    private User client;
+    private ClientProfile clientProfile;
 
     @ManyToOne
     @JoinColumn(name = "provider_id")
-    private User provider;
+    private ServiceProviderProfile providerProfile;
 
     private LocalDateTime createdAt;
 

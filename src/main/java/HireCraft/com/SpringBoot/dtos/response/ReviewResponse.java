@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 public class ReviewResponse {
     private Double rating;
     private String reviewTxt;
-    private String clientName;
+    private String clientFullName;
     private LocalDateTime createdAt;
 }

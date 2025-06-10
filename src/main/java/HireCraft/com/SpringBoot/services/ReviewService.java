@@ -2,11 +2,13 @@ package HireCraft.com.SpringBoot.services;
 
 import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
 public interface ReviewService {
-    ReviewResponse createReview(ReviewRequest request);
+
+    ReviewResponse createReview(ReviewRequest request, UserDetails userDetails);
 
     List<ReviewResponse> getAllReviews();  // All reviews in app
 

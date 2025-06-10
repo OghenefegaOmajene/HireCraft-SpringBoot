@@ -63,6 +63,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
                         .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile-picture").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/provider/{providerId}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/status").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews/create-review").authenticated()
                         // all other calls require MANAGE_USERS
                         .anyRequest().hasAuthority("MANAGE_USERS")
                 )
