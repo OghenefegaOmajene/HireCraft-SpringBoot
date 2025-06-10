@@ -13,7 +13,6 @@ public enum PermissionName {
         DELETE_USER_ACCOUNT,
         SEND_MESSAGE,
         RECEIVE_MESSAGE,
-        VIEW_REVIEWS,
 
         //Provider Permissions
         ACCEPT_BOOKING_REQUEST,
@@ -23,11 +22,14 @@ public enum PermissionName {
         RECEIVE_PAYMENT,
         WITHDRAW_PAYMENT,
         VIEW_EARNING_HISTORY,
+        VIEW_PROVIDER_REVIEWS,
 
         //Client Permissions
         BOOK_SERVICE_PROVIDER,
         ADD_REVIEW,
         MAKE_PAYMENT,
+        CANCEL_BOOKING_REQUEST,
+        VIEW_CLIENT_REVIEWS,
         VIEW_PAYMENT_HISTORY,
 
         //System Settings

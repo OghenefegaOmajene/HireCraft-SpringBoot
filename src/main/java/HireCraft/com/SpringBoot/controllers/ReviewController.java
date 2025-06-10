@@ -7,6 +7,7 @@ import HireCraft.com.SpringBoot.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -21,34 +22,36 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/create-review")
+    @PreAuthorize("hasAuthority('ADD_REVIEW')")
     public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request,
                                                        @AuthenticationPrincipal UserDetails userDetails) {
         ReviewResponse response = reviewService.createReview(request, userDetails);
         return ResponseEntity.ok(response);
     }
 
-
-    // 1. Get all reviews ever
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getAllReviews() {
         return reviewService.getAllReviews();
     }
 
-    // 2. Get all reviews for a provider
     @GetMapping("/provider/{providerId}")
+    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsForProvider(@PathVariable Long providerId) {
         return reviewService.getReviewsForProvider(providerId);
     }
 
-    // 3. Get all reviews written by a client
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsByClient(@PathVariable Long clientId) {
         return reviewService.getReviewsByClient(clientId);
     }
 
-    // 4. Get all reviews a client has written for a specific provider
     @GetMapping("/client/{clientId}/provider/{providerId}")
-    public List<ReviewResponse> getReviewsByClientForProvider(@PathVariable Long clientId, @PathVariable Long providerId) {
+    @PreAuthorize("hasAuthority('VIEW_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
+    public List<ReviewResponse> getReviewsByClientForProvider(@PathVariable Long clientId,
+                                                              @PathVariable Long providerId) {
         return reviewService.getReviewsByClientForProvider(clientId, providerId);
     }
+
 }
