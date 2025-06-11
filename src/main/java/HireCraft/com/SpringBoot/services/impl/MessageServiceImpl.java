@@ -2,13 +2,19 @@ package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.MessageRequest;
 import HireCraft.com.SpringBoot.dtos.response.MessageResponse;
+import HireCraft.com.SpringBoot.models.Booking;
+import HireCraft.com.SpringBoot.models.ClientProfile;
 import HireCraft.com.SpringBoot.models.Message;
+import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
 import HireCraft.com.SpringBoot.repository.BookingRepository;
 import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.MessageRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.services.MessageService;
+import HireCraft.com.SpringBoot.utils.TimeDateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,58 +25,57 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
-    private final ClientProfileRepository clientRepo;
-    private final ServiceProviderProfileRepository providerRepo;
-    private final BookingRepository bookingRepo;
-    private final EncryptionService encryptionService; // for E2EE
+    private final BookingRepository bookingRepository;
+    private final ClientProfileRepository clientProfileRepository;
+    private final ServiceProviderProfileRepository providerRepository;
 
     @Override
-    public void sendMessageToBooking(MessageRequest request, UserDetails userDetails) {
-        Booking booking = bookingRepo.findById(request.getBookingId())
+    public MessageResponse sendMessage(MessageRequest request, UserDetails userDetails) {
+        Booking booking = bookingRepository.findById(request.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        String encrypted = encryptionService.encrypt(request.getContent());
-
         Message message = new Message();
-        message.setEncryptedContent(encrypted);
         message.setBooking(booking);
+        message.setEncryptedContent(request.getContent()); // optionally encrypt here
 
-        String email = userDetails.getUsername();
+        ClientProfile client = clientProfileRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
+        ServiceProviderProfile provider = providerRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
 
-        clientRepo.findByUserEmail(email).ifPresentOrElse(client -> {
+        if (client != null) {
             message.setSenderClient(client);
-        }, () -> {
-            providerRepo.findByUserEmail(email).ifPresentOrElse(provider -> {
-                message.setSenderProvider(provider);
-            }, () -> {
-                throw new RuntimeException("Sender not found");
-            });
-        });
+        } else if (provider != null) {
+            message.setSenderProvider(provider);
+        } else {
+            throw new RuntimeException("Unauthorized sender");
+        }
 
-        messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+        return mapToResponse(saved);
     }
 
     @Override
-    public List<MessageResponse> getConversation(Long bookingId) {
-        return messageRepository.findByBookingIdOrderBySentAtAsc(bookingId).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public List<MessageResponse> getMessagesForBooking(Long bookingId) {
+        return messageRepository.findByBookingIdOrderBySentAtAsc(bookingId)
+                .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     private MessageResponse mapToResponse(Message message) {
         MessageResponse response = new MessageResponse();
-        response.setContent(encryptionService.decrypt(message.getEncryptedContent()));
-        response.setSenderType(message.getSenderClient() != null ? "CLIENT" : "PROVIDER");
-        response.setSentAt(formatTime(message.getSentAt()));
+
+        if (message.getSenderClient() != null) {
+            response.setSenderType("CLIENT");
+            response.setSenderFullName(message.getSenderClient().getUser().getFirstName()
+                    + " " + message.getSenderClient().getUser().getLastName());
+        } else {
+            response.setSenderType("PROVIDER");
+            response.setSenderFullName(message.getSenderProvider().getUser().getFirstName()
+                    + " " + message.getSenderProvider().getUser().getLastName());
+        }
+
+        response.setContent(message.getEncryptedContent()); // optionally decrypt
+        response.setDateStamp(TimeDateUtil.getDateLabel(message.getSentAt()));
+        response.setTimeSent(TimeDateUtil.formatTime(message.getSentAt()));
+
         return response;
-    }
-
-    private String formatTime(LocalDateTime sentAt) {
-        LocalDate today = LocalDate.now();
-        LocalDate msgDate = sentAt.toLocalDate();
-
-        if (msgDate.isEqual(today)) return sentAt.toLocalTime().toString();
-        else if (msgDate.plusDays(1).isEqual(today)) return "Yesterday";
-        else return msgDate.toString();
     }
 }

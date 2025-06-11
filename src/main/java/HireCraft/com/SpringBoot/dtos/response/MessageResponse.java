@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 public class MessageResponse {
-    private String senderType; // "CLIENT" or "PROVIDER"
-    private String content; // decrypted
-    private String sentAt; // e.g., "Yesterday", "Today", "3:45 PM"
+    private String senderType;         // "CLIENT" or "PROVIDER"
+    private String senderFullName;     // From either ClientProfile or ServiceProviderProfile
+    private String content;            // Decrypted message content
+    private String dateStamp;          // e.g., "Today", "Yesterday"
+    private String timeSent;           // e.g., "3:45 PM"
 }
-
