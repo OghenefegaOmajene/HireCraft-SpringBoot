@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BookingService {
     BookingResponse createBooking(BookingRequest request, UserDetails userDetails);
-    List<BookingResponse> getBookingsForProvider(Long providerId);
+    List<BookingResponse> getBookingsForProvider(UserDetails userDetails);
     void updateStatus(Long bookingId, String status);
     List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails);
 

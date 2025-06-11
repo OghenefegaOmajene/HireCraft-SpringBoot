@@ -1,7 +1,5 @@
 package HireCraft.com.SpringBoot.dtos.requests;
 
-import HireCraft.com.SpringBoot.models.ClientProfile;
-import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
 import lombok.Data;
 
 import java.util.Set;

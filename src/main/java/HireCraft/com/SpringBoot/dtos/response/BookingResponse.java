@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BookingResponse {
+
     private Long id;
     private String clientFullName;
     private String clientCompany;

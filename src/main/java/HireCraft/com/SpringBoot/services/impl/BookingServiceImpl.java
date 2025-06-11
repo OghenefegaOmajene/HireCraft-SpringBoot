@@ -66,14 +66,44 @@ public class BookingServiceImpl implements BookingService {
         return mapToResponse(booking);
     }
 
+//    @Override
+//    public List<BookingResponse> getBookingsForProvider(Long providerId) {
+//        return bookingRepository.findByProviderProfile_Id(providerId)
+//                .stream()
+//                .map(this::mapToResponse)
+//                .collect(Collectors.toList());
+//    }
+
     @Override
-    public List<BookingResponse> getBookingsForProvider(Long providerId) {
-        return bookingRepository.findByProviderProfile_Id(providerId)
+    public List<BookingResponse> getBookingsForProvider(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        return bookingRepository.findByClientProfile_Id(providerProfile.getId())
                 .stream()
-                .map(this::mapToResponse)
+                .map(this::mapToBookingResponse)
                 .collect(Collectors.toList());
     }
 
+    private BookingResponse mapToBookingResponse(Booking booking) {
+        BookingResponse response = new BookingResponse();
+        User clientUser = booking.getClientProfile().getUser();
+
+        response.setId(booking.getId());
+        response.setClientFullName(clientUser.getFirstName() + " " + clientUser.getLastName());
+        response.setClientPosition(booking.getClientProfile().getPosition());
+        response.setClientCompany(clientUser.getClientProfile().getCompanyName());
+        response.setCity(clientUser.getCity());
+        response.setState(clientUser.getState());
+        response.setCountry(clientUser.getCountry());
+        response.setTimeSlot(booking.getTimeSlot());
+        response.setEstimatedDuration(booking.getEstimatedDuration());
+        response.setDescription(booking.getDescription());
+        response.setStatus(booking.getStatus().name());
+        response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+
+        return response;
+    }
     @Override
     public List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails) {
         ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())

@@ -75,6 +75,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/messages/booking/{bookingId}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/messages/send").authenticated()
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile").authenticated()
                         // all other calls require MANAGE_USERS
                         .anyRequest().hasAuthority("MANAGE_USERS")
                 )

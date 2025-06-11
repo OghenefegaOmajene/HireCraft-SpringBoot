@@ -26,10 +26,10 @@ public class BookingController {
         return bookingService.createBooking(request, userDetails);
     }
 
-    @GetMapping("/provider/{providerId}")
+    @GetMapping("/provider/me")
     @PreAuthorize("hasAuthority('VIEW_BOOKING_REQUEST_PROVIDER')")
-    public List<BookingResponse> getProviderBookings(@PathVariable Long providerId) {
-        return bookingService.getBookingsForProvider(providerId);
+    public List<BookingResponse> getProviderBookings(@AuthenticationPrincipal UserDetails userDetails) {
+        return bookingService.getBookingsForProvider(userDetails);
     }
 
     @GetMapping("/client/me")

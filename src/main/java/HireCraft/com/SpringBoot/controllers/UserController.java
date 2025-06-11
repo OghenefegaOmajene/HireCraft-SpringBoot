@@ -1,8 +1,6 @@
 package HireCraft.com.SpringBoot.controllers;
 
-import HireCraft.com.SpringBoot.dtos.requests.ProfilePatchRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
-import HireCraft.com.SpringBoot.dtos.requests.UserUpdateRequest;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
 import HireCraft.com.SpringBoot.services.UserService;
@@ -53,14 +51,6 @@ public class UserController {
      * @param request payload containing updated fields
      * @return updated user information
      */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")
-    public ResponseEntity<UserDetailResponse> updateUser(
-            @PathVariable Long id,
-            @Valid @RequestBody UserUpdateRequest request) {
-        UserDetailResponse updated = userService.updateUser(id, request);
-        return ResponseEntity.ok(updated);
-    }
 
     /**
      * Delete a user account. Requires DELETE_USER_ACCOUNT permission.
@@ -84,7 +74,7 @@ public class UserController {
 
 
     @PatchMapping("/update-profile")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")
     public ResponseEntity<UserDetailResponse> updateMyProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UnifiedUserProfileUpdateRequest request) {

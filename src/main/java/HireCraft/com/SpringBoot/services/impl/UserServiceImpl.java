@@ -1,6 +1,5 @@
 package HireCraft.com.SpringBoot.services.impl;
 
-import HireCraft.com.SpringBoot.dtos.requests.ProfilePatchRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
 import HireCraft.com.SpringBoot.models.ClientProfile;
 import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
@@ -9,7 +8,6 @@ import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.CloudinaryService;
 import HireCraft.com.SpringBoot.services.UserService;
-import HireCraft.com.SpringBoot.dtos.requests.UserUpdateRequest;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
 import HireCraft.com.SpringBoot.models.User;
@@ -60,25 +58,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public UserDetailResponse updateUser(Long id, UserUpdateRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID " + id));
-
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setCountry(request.getCountry());
-        user.setState(request.getState());
-        user.setCity(request.getCity());
-        user.setUpdatedAt(java.time.LocalDateTime.now());
-
-        User updated = userRepository.save(user);
-        return mapToDetail(user);
-    }
-
-    @Override
     public Long getUserIdFromPrincipal(Principal principal) {
         return userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"))
@@ -102,6 +81,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDetailResponse updateUserProfile(String email, UnifiedUserProfileUpdateRequest request) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
