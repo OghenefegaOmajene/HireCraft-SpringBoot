@@ -1,6 +1,11 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.ProfilePatchRequest;
+import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
+import HireCraft.com.SpringBoot.models.ClientProfile;
+import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
+import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
+import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.CloudinaryService;
 import HireCraft.com.SpringBoot.services.UserService;
@@ -27,6 +32,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final ClientProfileRepository clientProfileRepository;
+    private final ServiceProviderProfileRepository serviceProviderProfileRepository;
 
     @Override
     public List<UserListResponse> getAllUsers() {
@@ -95,21 +102,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetailResponse updateUserProfile(String email, ProfilePatchRequest request) {
+    public UserDetailResponse updateUserProfile(String email, UnifiedUserProfileUpdateRequest request) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (request.getFirstName() != null) {
-            user.setFirstName(request.getFirstName());
+        // === Update base user fields ===
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
+        if (request.getCountry() != null) user.setCountry(request.getCountry());
+        if (request.getState() != null) user.setState(request.getState());
+        if (request.getCity() != null) user.setCity(request.getCity());
+
+        // === Client Profile Update ===
+        if (user.getClientProfile() != null) {
+            ClientProfile clientProfile = user.getClientProfile();
+            if(request.getPosition() !=null) clientProfile.setPosition(request.getPosition());
+            if(request.getProfession() !=null) clientProfile.setProfession(request.getProfession());
+            if (request.getCompanyName() != null) clientProfile.setCompanyName(request.getCompanyName());
+            if (request.getCompanyWebsiteUrl() != null) clientProfile.setCompanyWebsiteUrl(request.getCompanyWebsiteUrl());
+            if (request.getClientBio() != null) clientProfile.setBio(request.getClientBio());
+            clientProfileRepository.save(clientProfile);
         }
-        if (request.getLastName() != null) {
-            user.setLastName(request.getLastName());
+
+        // === Service Provider Profile Update ===
+        if (user.getServiceProviderProfile() != null) {
+            ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
+            if(request.getOccupation() !=null) providerProfile.setOccupation(request.getPosition());
+            if (request.getProviderBio() != null) providerProfile.setBio(request.getProviderBio());
+            if (request.getCvUrl() != null) providerProfile.setCvUrl(request.getCvUrl());
+            if (request.getSkills() != null && !request.getSkills().isEmpty()) {
+                providerProfile.setSkills(request.getSkills());
+            }
+            serviceProviderProfileRepository.save(providerProfile);
         }
-        user.setUpdatedAt(LocalDateTime.now());
+
         userRepository.save(user);
 
+//        return userMapper.toUserDetailResponse(user);
         return mapToDetail(user);
+
     }
+
 
     @Override
     @Transactional

@@ -64,6 +64,12 @@ public class User {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ClientProfile clientProfile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ServiceProviderProfile serviceProviderProfile;
+
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
@@ -74,10 +80,6 @@ public class User {
     @PreUpdate
     void preUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
     }
 
 }

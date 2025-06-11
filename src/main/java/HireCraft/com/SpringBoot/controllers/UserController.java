@@ -1,6 +1,7 @@
 package HireCraft.com.SpringBoot.controllers;
 
 import HireCraft.com.SpringBoot.dtos.requests.ProfilePatchRequest;
+import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UserUpdateRequest;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
@@ -82,13 +83,12 @@ public class UserController {
     }
 
 
-    @PatchMapping("/profile")
+    @PatchMapping("/update-profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDetailResponse> updateMyProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody ProfilePatchRequest request) {
-        UserDetailResponse updated = userService.updateUserProfile(
-                userDetails.getUsername(), request);
+            @Valid @RequestBody UnifiedUserProfileUpdateRequest request) {
+        UserDetailResponse updated = userService.updateUserProfile(userDetails.getUsername(), request);
         return ResponseEntity.ok(updated);
     }
 
