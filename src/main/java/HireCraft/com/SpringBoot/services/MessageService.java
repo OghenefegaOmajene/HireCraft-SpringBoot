@@ -9,6 +9,10 @@ import java.util.List;
 public interface MessageService {
     void sendMessageToBooking(MessageRequest request, UserDetails userDetails);
     List<MessageResponse> getConversation(Long bookingId);
+
+    MessageResponse sendMessage(MessageRequest request, UserDetails userDetails);
+
+    List<MessageResponse> getMessagesForBooking(Long bookingId);
 }
 
 

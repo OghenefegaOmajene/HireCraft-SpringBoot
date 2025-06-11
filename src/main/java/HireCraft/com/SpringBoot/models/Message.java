@@ -17,10 +17,10 @@ public class Message {
     private Long id;
 
     @ManyToOne
-    private ClientProfile senderClient;
+    private ClientProfile clientProfile;
 
     @ManyToOne
-    private ServiceProviderProfile senderProvider;
+    private ServiceProviderProfile providerProfile;
 
     @ManyToOne
     private Booking booking; // Links conversation to the booking

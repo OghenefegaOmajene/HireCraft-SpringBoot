@@ -72,6 +72,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/provider/{providerId}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}/provider/{providerId}").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/messages/booking/{bookingId}").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/messages/send").authenticated()
                         // all other calls require MANAGE_USERS
                         .anyRequest().hasAuthority("MANAGE_USERS")
                 )

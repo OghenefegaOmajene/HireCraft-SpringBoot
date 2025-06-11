@@ -13,6 +13,10 @@ import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.BookingService;
+
+import HireCraft.com.SpringBoot.models.Message;
+import HireCraft.com.SpringBoot.repository.MessageRepository;
+import HireCraft.com.SpringBoot.utils.EncryptorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +36,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
+    private final MessageRepository messageRepository;
+    private final EncryptorUtil encryptorUtil;
 
     @Override
     public BookingResponse createBooking(BookingRequest request, UserDetails userDetails) {
@@ -50,6 +56,12 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.PENDING);
 
         bookingRepository.save(booking);
+
+        Message message = new Message();
+        message.setBooking(booking);
+        message.setClientProfile(clientprofile); // Sender is the client
+        message.setEncryptedContent(encryptorUtil.encrypt(request.getDescription()));
+        messageRepository.save(message);
 
         return mapToResponse(booking);
     }

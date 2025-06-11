@@ -11,9 +11,9 @@ import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.MessageRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.services.MessageService;
+import HireCraft.com.SpringBoot.utils.EncryptorUtil;
 import HireCraft.com.SpringBoot.utils.TimeDateUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,51 +28,64 @@ public class MessageServiceImpl implements MessageService {
     private final BookingRepository bookingRepository;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository providerRepository;
+    private final EncryptorUtil encryptorUtil;
 
     @Override
-    public MessageResponse sendMessage(MessageRequest request, UserDetails userDetails) {
+    public void sendMessageToBooking(MessageRequest request, UserDetails userDetails) {
         Booking booking = bookingRepository.findById(request.getBookingId())
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         Message message = new Message();
         message.setBooking(booking);
-        message.setEncryptedContent(request.getContent()); // optionally encrypt here
+        message.setEncryptedContent(encryptorUtil.encrypt(request.getContent()));
 
-        ClientProfile client = clientProfileRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
-        ServiceProviderProfile provider = providerRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
+        ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
+        ServiceProviderProfile providerProfile = providerRepository.findByUserEmail(userDetails.getUsername()).orElse(null);
 
-        if (client != null) {
-            message.setSenderClient(client);
-        } else if (provider != null) {
-            message.setSenderProvider(provider);
+        if (clientProfile != null) {
+            message.setClientProfile(clientProfile);
+        } else if (providerProfile != null) {
+            message.setProviderProfile(providerProfile);
         } else {
             throw new RuntimeException("Unauthorized sender");
         }
 
-        Message saved = messageRepository.save(message);
-        return mapToResponse(saved);
+        messageRepository.save(message);
+    }
+
+    @Override
+    public List<MessageResponse> getConversation(Long bookingId) {
+        return messageRepository.findByBookingIdOrderBySentAtAsc(bookingId)
+                .stream().map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public MessageResponse sendMessage(MessageRequest request, UserDetails userDetails) {
+        sendMessageToBooking(request, userDetails);
+        return getConversation(request.getBookingId()).stream()
+                .reduce((first, second) -> second).orElse(null);
     }
 
     @Override
     public List<MessageResponse> getMessagesForBooking(Long bookingId) {
-        return messageRepository.findByBookingIdOrderBySentAtAsc(bookingId)
-                .stream().map(this::mapToResponse).collect(Collectors.toList());
+        return List.of();
     }
 
     private MessageResponse mapToResponse(Message message) {
         MessageResponse response = new MessageResponse();
 
-        if (message.getSenderClient() != null) {
+        if (message.getClientProfile() != null) {
             response.setSenderType("CLIENT");
-            response.setSenderFullName(message.getSenderClient().getUser().getFirstName()
-                    + " " + message.getSenderClient().getUser().getLastName());
-        } else {
+            response.setSenderFullName(message.getClientProfile().getUser().getFirstName()
+                    + " " + message.getClientProfile().getUser().getLastName());
+        } else if (message.getProviderProfile() != null) {
             response.setSenderType("PROVIDER");
-            response.setSenderFullName(message.getSenderProvider().getUser().getFirstName()
-                    + " " + message.getSenderProvider().getUser().getLastName());
+            response.setSenderFullName(message.getProviderProfile().getUser().getFirstName()
+                    + " " + message.getProviderProfile().getUser().getLastName());
         }
 
-        response.setContent(message.getEncryptedContent()); // optionally decrypt
+        response.setContent(encryptorUtil.decrypt(message.getEncryptedContent()));
         response.setDateStamp(TimeDateUtil.getDateLabel(message.getSentAt()));
         response.setTimeSent(TimeDateUtil.formatTime(message.getSentAt()));
 
