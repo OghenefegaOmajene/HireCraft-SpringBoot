@@ -23,55 +23,34 @@ public class UserController {
 
     private final UserService userService;
 
-    /**
-     * List all users. Only admins with MANAGE_USERS permission can access.
-     */
-    @GetMapping
+    @GetMapping("/getAll")
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
     public ResponseEntity<List<UserListResponse>> getAllUsers() {
         List<UserListResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
-    /**
-     * Get user details by ID. Requires VIEW_USER_PROFILE permission.
-     * @param id user identifier
-     * @return detailed user information
-     */
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")
-    public ResponseEntity<UserDetailResponse> getUserById(@PathVariable Long id) {
-        UserDetailResponse user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
-    }
-
-    /**
-     * Update an existing user's profile. Requires EDIT_USER_PROFILE permission.
-     * @param id user identifier
-     * @param request payload containing updated fields
-     * @return updated user information
-     */
-
-    /**
-     * Delete a user account. Requires DELETE_USER_ACCOUNT permission.
-     * @param id user identifier
-     * @return no content on successful deletion
-     */
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('DELETE_USER_ACCOUNT')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/me")
-    @PreAuthorize("isAuthenticated()")               // ①
+    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")               // ①
     public ResponseEntity<UserDetailResponse> getMyProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
         UserDetailResponse profile = userService.getUserByEmail(userDetails.getUsername());
         return ResponseEntity.ok(profile);
     }
 
+    @GetMapping("/view-profile")
+    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")
+    public ResponseEntity<UserDetailResponse> getUserById(@PathVariable Long id) {
+        UserDetailResponse user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_USER_ACCOUNT') or hasAuthority('MANAGE_USERS')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @PatchMapping("/update-profile")
     @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")

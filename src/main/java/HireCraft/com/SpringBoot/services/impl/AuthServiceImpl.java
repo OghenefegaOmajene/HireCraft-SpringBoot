@@ -16,6 +16,7 @@ import HireCraft.com.SpringBoot.enums.UserStatus;
 import HireCraft.com.SpringBoot.security.jwt.JwtTokenProvider;
 import HireCraft.com.SpringBoot.utils.PasswordUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,6 +45,9 @@ public class AuthServiceImpl implements AuthService {
     private static final int TOKEN_EXPIRY_MINUTES = 15;
     private static final SecureRandom RANDOM = new SecureRandom();
     private final JavaMailSender mailSender;
+    @Value("${cloudinary.default-profile-url}")
+    private String defaultProfileImageUrl;
+
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
@@ -71,6 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .roles(Collections.singleton(userRole))
+                .profilePictureUrl(defaultProfileImageUrl)
                 .build();
 
         // 4. Persist

@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/reset-password"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/users/me").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,  "/api/v1/users/delete/{id}").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
                         .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile-picture").authenticated()
