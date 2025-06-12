@@ -35,10 +35,10 @@ public class ReviewController {
         return reviewService.getAllReviews();
     }
 
-    @GetMapping("/provider/{providerId}")
+    @GetMapping("/provider/me")
     @PreAuthorize("hasAuthority('VIEW_PROVIDER_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
-    public List<ReviewResponse> getReviewsForProvider(@PathVariable Long providerId) {
-        return reviewService.getReviewsForProvider(providerId);
+    public List<ReviewResponse> getReviewsForProvider(@AuthenticationPrincipal UserDetails userDetails) {
+        return reviewService.getReviewsForProvider(userDetails);
     }
 
     @GetMapping("/client/{clientId}")

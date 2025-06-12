@@ -12,7 +12,9 @@ public interface ReviewService {
 
     List<ReviewResponse> getAllReviews();  // All reviews in app
 
-    List<ReviewResponse> getReviewsForProvider(Long providerId); // All reviews for one provider
+//    List<ReviewResponse> getReviewsForProvider(Long providerId);
+
+    List<ReviewResponse> getReviewsForProvider(UserDetails userDetails);
 
     List<ReviewResponse> getReviewsByClient(Long clientId); // All reviews written by a specific client
 

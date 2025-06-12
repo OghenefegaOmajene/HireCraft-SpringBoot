@@ -1,11 +1,9 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
+import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
-import HireCraft.com.SpringBoot.models.ClientProfile;
-import HireCraft.com.SpringBoot.models.Review;
-import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
-import HireCraft.com.SpringBoot.models.User;
+import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.ReviewRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
@@ -68,9 +66,28 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getReviewsForProvider(Long providerId) {
-        List<Review> reviews = reviewRepository.findByProviderProfile_Id(providerId);
-        return convertToResponseList(reviews);
+    public List<ReviewResponse> getReviewsForProvider(UserDetails userDetails) {
+//        List<Review> reviews = reviewRepository.findByProviderProfile_Id(providerId);
+//        return convertToResponseList(reviews);
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        return reviewRepository.findByProviderProfile_Id(providerProfile.getId())
+                .stream()
+                .map(this::mapToReviewResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ReviewResponse mapToReviewResponse(Review review) {
+        ReviewResponse response = new ReviewResponse();
+        User clientUser = review.getClientProfile().getUser();
+
+        response.setRating(review.getRatingNo());
+        response.setReviewTxt(review.getReviewTxt());
+        response.setClientFullName(clientUser.getFirstName() + " " + clientUser.getLastName());
+        response.setCreatedAt(review.getCreatedAt());
+
+        return response;
     }
 
     @Override
