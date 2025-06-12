@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,  "/api/v1/users/delete/{id}").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
                         .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile-picture").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile-picture").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/bookings/provider/{providerId}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/status").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/bookings/client/me").authenticated()

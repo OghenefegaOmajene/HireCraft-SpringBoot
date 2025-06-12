@@ -61,8 +61,8 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 
-    @PatchMapping("/profile-picture")
-    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/update-profile-picture")
+    @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")
     public ResponseEntity<Map<String,String>> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails principal,
             @RequestPart("file") MultipartFile file) {
