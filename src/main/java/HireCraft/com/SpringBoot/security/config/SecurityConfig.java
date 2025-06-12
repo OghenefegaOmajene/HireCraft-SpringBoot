@@ -59,27 +59,28 @@ public class SecurityConfig {
                                 "/api/v1/auth/forgot-password",
                                 "/api/v1/auth/reset-password"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/users/me").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,  "/api/v1/users/delete/{id}").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
-                        .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile-picture").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/provider/{providerId}").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/status").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/client/me").authenticated()
-                        // Only users with the ADD_REVIEW permission
-                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews/create-review").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/all").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/provider/{providerId}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}/provider/{providerId}").authenticated()
-
-                        .requestMatchers(HttpMethod.GET, "/api/v1/messages/booking/{bookingId}").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/messages/send").authenticated()
-
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile").authenticated()
-                        // all other calls require MANAGE_USERS
-                        .anyRequest().hasAuthority("MANAGE_USERS")
+                                .anyRequest().authenticated()
+//                        .requestMatchers(HttpMethod.GET,  "/api/v1/users/me").authenticated()
+//                        .requestMatchers(HttpMethod.DELETE,  "/api/v1/users/delete/{id}").authenticated()
+//                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/profile").authenticated()
+//                        .requestMatchers(HttpMethod.POST, "api/v1/bookings/create").authenticated()
+//                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile-picture").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/provider/{providerId}").authenticated()
+//                        .requestMatchers(HttpMethod.PUT, "/api/v1/bookings/{bookingId}/status").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/bookings/client/me").authenticated()
+//                        // Only users with the ADD_REVIEW permission
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/reviews/create-review").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/all").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/provider/{providerId}").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}").authenticated()
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/client/{clientId}/provider/{providerId}").authenticated()
+//
+//                        .requestMatchers(HttpMethod.GET, "/api/v1/messages/booking/{bookingId}").authenticated()
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/messages/send").authenticated()
+//
+//                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-profile").authenticated()
+//                        // all other calls require MANAGE_USERS
+//                        .anyRequest().hasAuthority("MANAGE_USERS")
                 )
                 .addFilter(authFilter)
                 .addFilterBefore(

@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")               // ①
+//    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")               // ①
     public ResponseEntity<UserDetailResponse> getMyProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
         UserDetailResponse profile = userService.getUserByEmail(userDetails.getUsername());
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PatchMapping("/update-profile")
-    @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")
+//    @PreAuthorize("hasAuthority('EDIT_USER_PROFILE')")
     public ResponseEntity<UserDetailResponse> updateMyProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UnifiedUserProfileUpdateRequest request) {
