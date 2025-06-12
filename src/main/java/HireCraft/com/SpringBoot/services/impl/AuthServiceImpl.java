@@ -86,6 +86,9 @@ public class AuthServiceImpl implements AuthService {
             if (request.getOccupation() == null || request.getOccupation().isBlank()) {
                 throw new IllegalArgumentException("Occupation is required for service providers.");
             }
+            if(request.getHourlyRate() == null || request.getHourlyRate().isBlank()){
+                throw new IllegalArgumentException("Hourly Rate is required for service providers.");
+            }
         } else if ("ROLE_CLIENT".equalsIgnoreCase(request.getRole())) {
             if (request.getProfession() == null || request.getProfession().isBlank()) {
                 throw new IllegalArgumentException("Profession is required for clients.");
@@ -99,6 +102,7 @@ public class AuthServiceImpl implements AuthService {
         if ("ROLE_PROVIDER".equals(request.getRole())) {
             ServiceProviderProfile profile = ServiceProviderProfile.builder()
                     .occupation(request.getOccupation())
+                    .hourlyRate(request.getHourlyRate())
                     .bio(null)            // Optional, can be updated later
                     .cvUrl(null)          // Optional
                     .averageRating(0.0)   // Initial rating

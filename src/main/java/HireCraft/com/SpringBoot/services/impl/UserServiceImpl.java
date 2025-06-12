@@ -111,6 +111,7 @@ public class UserServiceImpl implements UserService {
         if (user.getServiceProviderProfile() != null) {
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
             if(request.getOccupation() !=null) providerProfile.setOccupation(request.getOccupation());
+            if(request.getHourlyRate() !=null) providerProfile.setHourlyRate(request.getHourlyRate());
             if (request.getProviderBio() != null) providerProfile.setBio(request.getProviderBio());
             if (request.getCvUrl() != null) providerProfile.setCvUrl(request.getCvUrl());
             if (request.getSkills() != null && !request.getSkills().isEmpty()) {
@@ -144,6 +145,7 @@ public class UserServiceImpl implements UserService {
     private UserDetailResponse mapToDetail(User user) {
         // Default values for profile-specific fields
         String occupation = null;
+        String hourlyRate=null;
         String providerBio = null;
         Set<String> skills = null;
         String cvUrl = null;
@@ -157,6 +159,7 @@ public class UserServiceImpl implements UserService {
         if (user.getServiceProviderProfile() != null) {
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
             occupation = providerProfile.getOccupation();
+            hourlyRate = providerProfile.getHourlyRate();
             providerBio = providerProfile.getBio();
             skills = providerProfile.getSkills();
             cvUrl = providerProfile.getCvUrl();
@@ -180,6 +183,7 @@ public class UserServiceImpl implements UserService {
                 user.getCity(),
                 user.getStatus().name(),
                 occupation,
+                hourlyRate,
                 providerBio,
                 skills,
                 cvUrl,

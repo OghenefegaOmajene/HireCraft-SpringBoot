@@ -22,6 +22,7 @@ public class UserDetailResponse {
     private String status;
 
     private String occupation;
+    private String hourlyRate;
     private String providerBio;
     private Set<String> skills;
     private String cvUrl;

@@ -19,6 +19,8 @@ public class ServiceProviderProfile {
 
     private String occupation;
 
+    private String hourlyRate;
+
     @Column(length = 1000)
     private String bio;
 

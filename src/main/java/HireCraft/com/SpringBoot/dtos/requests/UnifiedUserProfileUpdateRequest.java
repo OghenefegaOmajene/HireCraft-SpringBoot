@@ -24,6 +24,7 @@ public class UnifiedUserProfileUpdateRequest {
 
     // Provider-specific fields
     private String occupation;
+    private String hourlyRate;
     private String providerBio;
     private String cvUrl;
     private Set<String> skills;

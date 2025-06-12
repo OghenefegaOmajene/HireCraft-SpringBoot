@@ -37,9 +37,12 @@ public class RegisterRequest {
     @NotBlank(message = "Enter your city")
     private String city;
 
+    @NotBlank(message = "Enter your phone number")
     private String phoneNumber;
 
     private String occupation;
+
+    private String hourlyRate;
 
     private String role;
 
