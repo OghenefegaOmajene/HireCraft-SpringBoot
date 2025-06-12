@@ -37,6 +37,8 @@ public class RegisterRequest {
     @NotBlank(message = "Enter your city")
     private String city;
 
+    private String phoneNumber;
+
     private String occupation;
 
     private String role;

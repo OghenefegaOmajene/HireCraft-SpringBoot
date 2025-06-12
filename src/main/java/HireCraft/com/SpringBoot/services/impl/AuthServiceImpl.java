@@ -68,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(request.getEmail())
                 // encode password via util
                 .passwordHash(PasswordUtil.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
                 .country(request.getCountry())
                 .state(request.getState())
                 .city(request.getCity())
