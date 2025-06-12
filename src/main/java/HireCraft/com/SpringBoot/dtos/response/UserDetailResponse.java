@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +20,18 @@ public class UserDetailResponse {
     private String state;
     private String city;
     private String status;
+
+    private String occupation;
+    private String providerBio;
+    private Set<String> skills;
+    private String cvUrl;
+
+    private String companyName;
+    private String position;
+    private String profession;
+    private String companyWebsiteUrl;
+    private String clientBio;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String profilePictureUrl;

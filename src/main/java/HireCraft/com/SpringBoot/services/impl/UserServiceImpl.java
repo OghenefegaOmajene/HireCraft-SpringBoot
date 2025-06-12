@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,7 +110,7 @@ public class UserServiceImpl implements UserService {
         // === Service Provider Profile Update ===
         if (user.getServiceProviderProfile() != null) {
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
-            if(request.getOccupation() !=null) providerProfile.setOccupation(request.getPosition());
+            if(request.getOccupation() !=null) providerProfile.setOccupation(request.getOccupation());
             if (request.getProviderBio() != null) providerProfile.setBio(request.getProviderBio());
             if (request.getCvUrl() != null) providerProfile.setCvUrl(request.getCvUrl());
             if (request.getSkills() != null && !request.getSkills().isEmpty()) {
@@ -141,6 +142,33 @@ public class UserServiceImpl implements UserService {
 
 
     private UserDetailResponse mapToDetail(User user) {
+        // Default values for profile-specific fields
+        String occupation = null;
+        String providerBio = null;
+        Set<String> skills = null;
+        String cvUrl = null;
+
+        String companyName = null;
+        String position = null;
+        String profession = null;
+        String companyWebsiteUrl = null;
+        String clientBio = null;
+
+        if (user.getServiceProviderProfile() != null) {
+            ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
+            occupation = providerProfile.getOccupation();
+            providerBio = providerProfile.getBio();
+            skills = providerProfile.getSkills();
+            cvUrl = providerProfile.getCvUrl();
+        } else if (user.getClientProfile() != null) {
+            ClientProfile clientProfile = user.getClientProfile();
+            companyName = clientProfile.getCompanyName();
+            position = clientProfile.getPosition();
+            profession = clientProfile.getProfession();
+            companyWebsiteUrl = clientProfile.getCompanyWebsiteUrl();
+            clientBio = clientProfile.getBio();
+        }
+
         return new UserDetailResponse(
                 user.getId(),
                 user.getFirstName(),
@@ -151,9 +179,22 @@ public class UserServiceImpl implements UserService {
                 user.getState(),
                 user.getCity(),
                 user.getStatus().name(),
+                occupation,
+                providerBio,
+                skills,
+                cvUrl,
+                companyName,
+                position,
+                profession,
+                companyWebsiteUrl,
+                clientBio,
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getProfilePictureUrl()
+                // Populate Service Provider Fields
+
+                // Populate Client Fields
+
         );
     }
 }
