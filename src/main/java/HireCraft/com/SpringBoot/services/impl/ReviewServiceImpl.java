@@ -50,6 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // Save and return response
         Review saved = reviewRepository.save(review);
+        updateServiceProviderAverageRating(serviceProviderProfile);
 
         return ReviewResponse.builder()
                 .rating(saved.getRatingNo())
@@ -57,6 +58,29 @@ public class ReviewServiceImpl implements ReviewService {
                 .clientFullName(user.getFirstName() + " " + user.getLastName())
                 .createdAt(saved.getCreatedAt())
                 .build();
+    }
+
+    private void updateServiceProviderAverageRating(ServiceProviderProfile serviceProviderProfile) {
+        // Fetch all reviews for this specific service provider
+        List<Review> reviews = reviewRepository.findByProviderProfile_Id(serviceProviderProfile.getId());
+
+        if (reviews.isEmpty()) {
+            serviceProviderProfile.setAverageRating(0.0); // No reviews, so average is 0
+        } else {
+            // Calculate the sum of all ratings
+            double sumOfRatings = reviews.stream()
+                    .mapToDouble(Review::getRatingNo) // Use getRatingNo from your Review model
+                    .sum();
+
+            // Calculate the raw new average
+            double newAverage = sumOfRatings / reviews.size();
+
+            double roundedAverage = Math.round(newAverage * 10.0) / 10.0;
+
+            serviceProviderProfile.setAverageRating(roundedAverage);
+        }
+
+        serviceProviderProfileRepository.save(serviceProviderProfile);
     }
 
     @Override
