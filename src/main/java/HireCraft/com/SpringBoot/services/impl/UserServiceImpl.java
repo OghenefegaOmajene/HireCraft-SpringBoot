@@ -1,7 +1,9 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
+import HireCraft.com.SpringBoot.enums.RoleName;
 import HireCraft.com.SpringBoot.models.ClientProfile;
+import HireCraft.com.SpringBoot.models.Role;
 import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
 import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
@@ -157,6 +159,29 @@ public class UserServiceImpl implements UserService {
         String companyWebsiteUrl = null;
         String clientBio = null;
 
+        String userRole = "";
+
+        // Assuming User has a getRoles() method that returns a Set<Role>
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            // Find the primary role. You might have specific logic here,
+            // e.g., if a user can be both ROLE_CLIENT and ROLE_PROVIDER (unlikely but possible),
+            // or if ROLE_ADMIN takes precedence.
+            // For simplicity, let's just pick the first applicable role.
+            for (Role role : user.getRoles()) {
+                if (role.getName().equals(RoleName.ROLE_PROVIDER.name())) {
+                    userRole = RoleName.ROLE_PROVIDER.name();
+                    break; // Found provider role, exit
+                } else if (role.getName().equals(RoleName.ROLE_CLIENT.name())) {
+                    userRole = RoleName.ROLE_CLIENT.name();
+                    // Don't break if provider role might exist and take precedence
+                    // (Depends on your business logic)
+                }
+                // If you only expect one main role, you could just assign the first one:
+                // userRole = role.getName();
+                // break;
+            }
+        }
+
         if (user.getServiceProviderProfile() != null) {
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
             averageRating = providerProfile.getAverageRating();
@@ -176,6 +201,7 @@ public class UserServiceImpl implements UserService {
 
         return new UserDetailResponse(
                 user.getId(),
+                userRole,
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),

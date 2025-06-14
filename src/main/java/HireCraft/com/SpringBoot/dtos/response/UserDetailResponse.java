@@ -12,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserDetailResponse {
     private Long id;
+    private String userRole;
     private String firstName;
     private String lastName;
     private String email;
