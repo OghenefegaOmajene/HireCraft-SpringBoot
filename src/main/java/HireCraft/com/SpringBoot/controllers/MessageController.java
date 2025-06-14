@@ -5,6 +5,7 @@ import HireCraft.com.SpringBoot.dtos.response.MessageResponse;
 import HireCraft.com.SpringBoot.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,7 @@ import java.util.List;
 public class MessageController {
 
     private final MessageService messageService;
-
+    private final SimpMessagingTemplate messagingTemplate;
     /**
      * Send a new message (encrypted) linked to a booking.
      */
@@ -27,6 +28,7 @@ public class MessageController {
     public ResponseEntity<MessageResponse> sendMessage(@RequestBody MessageRequest request,
                                                        @AuthenticationPrincipal UserDetails userDetails) {
         MessageResponse response = messageService.sendMessage(request, userDetails);
+        messagingTemplate.convertAndSend("/topic/messages/" + request.getBookingId(), response);
         return ResponseEntity.ok(response);
     }
 

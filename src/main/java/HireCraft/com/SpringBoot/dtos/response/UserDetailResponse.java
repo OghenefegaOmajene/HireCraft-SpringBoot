@@ -21,6 +21,7 @@ public class UserDetailResponse {
     private String city;
     private String status;
 
+    private double averageRating;
     private String occupation;
     private String hourlyRate;
     private String providerBio;
