@@ -43,7 +43,7 @@ public class BookingController {
 
 
     @PatchMapping("/{bookingId}/status") // Use PATCH for partial update
-    @PreAuthorize("hasAuthority('CANCEL_BOOKING_REQUEST', 'UPDATE_BOOKING_REQUEST_STATUS')") // More specific permission required
+    @PreAuthorize("hasAuthority('CANCEL_BOOKING_REQUEST') or hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
     public ResponseEntity<BookingResponse> updateBookingStatus(@PathVariable Long bookingId,
                                                                @RequestBody @Valid UpdateBookingStatusRequest request,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
