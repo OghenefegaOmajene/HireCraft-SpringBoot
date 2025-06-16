@@ -12,5 +12,4 @@ public interface BookingService {
     List<BookingResponse> getBookingsForProvider(UserDetails userDetails);
     void updateStatus(Long bookingId, String status);
     List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails);
-
 }

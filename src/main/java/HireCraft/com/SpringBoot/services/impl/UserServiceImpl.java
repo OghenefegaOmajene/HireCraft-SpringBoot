@@ -224,9 +224,6 @@ public class UserServiceImpl implements UserService {
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getProfilePictureUrl()
-                // Populate Service Provider Fields
-
-                // Populate Client Fields
 
         );
     }

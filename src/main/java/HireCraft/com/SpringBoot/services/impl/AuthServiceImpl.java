@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .roles(Collections.singleton(userRole))
-                .profilePictureUrl(defaultProfileImageUrl)
+//                .profilePictureUrl(defaultProfileImageUrl)
                 .build();
 
         // 4. Persist
