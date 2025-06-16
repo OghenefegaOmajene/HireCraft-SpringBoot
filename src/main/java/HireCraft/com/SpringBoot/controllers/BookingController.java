@@ -1,10 +1,13 @@
 package HireCraft.com.SpringBoot.controllers;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
+import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.services.BookingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,10 +42,12 @@ public class BookingController {
     }
 
 
-    @PutMapping("/{bookingId}/status")
-    @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
-    public void updateStatus(@PathVariable Long bookingId,
-                             @RequestParam String status) {
-        bookingService.updateStatus(bookingId, status);
+    @PatchMapping("/{bookingId}/status") // Use PATCH for partial update
+    @PreAuthorize("hasAnyAuthority('CANCEL_BOOKING', 'ACCEPT_DECLINE_COMPLETE_BOOKING')") // More specific permission required
+    public ResponseEntity<BookingResponse> updateBookingStatus(@PathVariable Long bookingId,
+                                                               @RequestBody @Valid UpdateBookingStatusRequest request,
+                                                               @AuthenticationPrincipal UserDetails userDetails) {
+        BookingResponse updatedBooking = bookingService.updateBookingStatus(bookingId, request, userDetails);
+        return ResponseEntity.ok(updatedBooking);
     }
 }

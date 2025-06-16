@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
         ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
-        return bookingRepository.findByClientProfile_Id(providerProfile.getId())
+        return bookingRepository.findByProviderProfile_Id(providerProfile.getId())
                 .stream()
                 .map(this::mapToBookingResponse)
                 .collect(Collectors.toList());
@@ -133,13 +133,88 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void updateStatus(Long bookingId, String status) {
+    @Transactional // Ensure the status update is atomic
+    public BookingResponse updateBookingStatus(Long bookingId, UpdateBookingStatusRequest request, UserDetails userDetails) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + bookingId));
 
-        booking.setStatus(BookingStatus.valueOf(status.toUpperCase()));
-        bookingRepository.save(booking);
-    }
+        // Get the authenticated user's actual User entity
+        User authenticatedUser = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+
+        // Determine if the authenticated user is the client of this booking
+        boolean isClientOfBooking = booking.getClientProfile().getUser().getId().equals(authenticatedUser.getId());
+        // Determine if the authenticated user is the provider of this booking
+        boolean isProviderOfBooking = booking.getProviderProfile().getUser().getId().equals(authenticatedUser.getId());
+
+        // Initial authorization check: User must be either the client or the provider of the booking
+        if (!isClientOfBooking && !isProviderOfBooking) {
+            throw new UnauthorizedBookingActionException("You are not authorized to update this booking.");
+        }
+
+        BookingStatus currentStatus = booking.getStatus();
+        BookingStatus newStatus = request.getNewStatus();
+
+        // --- Business Logic for Status Transitions based on Role ---
+
+        if (authenticatedUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_CLIENT"))) {
+            // Logic for Client
+            if (!isClientOfBooking) {
+                throw new UnauthorizedBookingActionException("As a client, you can only cancel your own bookings.");
+            }
+            if (newStatus == BookingStatus.CANCELLED) {
+                // Client can only cancel if PENDING or ACCEPTED
+                if (currentStatus == BookingStatus.PENDING || currentStatus == BookingStatus.ACCEPTED) {
+                    booking.setStatus(newStatus);
+                    booking.setUpdatedAt(LocalDateTime.now());
+                } else {
+                    throw new InvalidBookingStatusTransitionException(
+                            "Cannot cancel a booking that is " + currentStatus.name() + ". Only PENDING or ACCEPTED bookings can be cancelled."
+                    );
+                }
+            } else {
+                throw new InvalidBookingStatusTransitionException("Clients can only change booking status to CANCELLED.");
+            }
+        } else if (authenticatedUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_PROVIDER"))) {
+            // Logic for Provider
+            if (!isProviderOfBooking) {
+                throw new UnauthorizedBookingActionException("As a provider, you can only manage your own service bookings.");
+            }
+            switch (newStatus) {
+                case ACCEPTED:
+                    if (currentStatus == BookingStatus.PENDING) {
+                        booking.setStatus(newStatus);
+                        booking.setUpdatedAt(LocalDateTime.now());
+                    } else {
+                        throw new InvalidBookingStatusTransitionException("Booking must be PENDING to be ACCEPTED.");
+                    }
+                    break;
+                case DECLINED:
+                    if (currentStatus == BookingStatus.PENDING) {
+                        booking.setStatus(newStatus);
+                        booking.setUpdatedAt(LocalDateTime.now());
+                    } else {
+                        throw new InvalidBookingStatusTransitionException("Booking must be PENDING to be DECLINED.");
+                    }
+                    break;
+                case COMPLETED:
+                    if (currentStatus == BookingStatus.ACCEPTED) {
+                        booking.setStatus(newStatus);
+                        booking.setUpdatedAt(LocalDateTime.now());
+                    } else {
+                        throw new InvalidBookingStatusTransitionException("Booking must be ACCEPTED to be COMPLETED.");
+                    }
+                    break;
+                default:
+                    throw new InvalidBookingStatusTransitionException("Providers can only change booking status to ACCEPTED, DECLINED, or COMPLETED.");
+            }
+        } else {
+            // This case should ideally be caught by @PreAuthorize, but as a fallback.
+            throw new UnauthorizedBookingActionException("Your role does not permit updating booking statuses.");
+        }
+
+        // Save the updated booking
+        Booking updatedBooking = bookingRepository.save(booking);
 
     private BookingResponse mapToResponse(Booking booking) {
         BookingResponse response = new BookingResponse();
