@@ -1,9 +1,12 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
+import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.enums.BookingStatus;
+import HireCraft.com.SpringBoot.exceptions.InvalidBookingStatusTransitionException;
+import HireCraft.com.SpringBoot.exceptions.UnauthorizedBookingActionException;
 import HireCraft.com.SpringBoot.models.Booking;
 import HireCraft.com.SpringBoot.models.ClientProfile;
 import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
@@ -26,13 +29,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
@@ -63,16 +67,8 @@ public class BookingServiceImpl implements BookingService {
         message.setEncryptedContent(encryptorUtil.encrypt(request.getDescription()));
         messageRepository.save(message);
 
-        return mapToResponse(booking);
+        return mapToBookingResponse(booking);
     }
-
-//    @Override
-//    public List<BookingResponse> getBookingsForProvider(Long providerId) {
-//        return bookingRepository.findByProviderProfile_Id(providerId)
-//                .stream()
-//                .map(this::mapToResponse)
-//                .collect(Collectors.toList());
-//    }
 
     @Override
     public List<BookingResponse> getBookingsForProvider(UserDetails userDetails) {
@@ -100,10 +96,11 @@ public class BookingServiceImpl implements BookingService {
         response.setEstimatedDuration(booking.getEstimatedDuration());
         response.setDescription(booking.getDescription());
         response.setStatus(booking.getStatus().name());
-        response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+        response.setTimeAgo(getTimeAgo(booking.getUpdatedAt()));
 
         return response;
     }
+
     @Override
     public List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails) {
         ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
@@ -127,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
         response.setState(providerUser.getState());
         response.setCountry(providerUser.getCountry());
         response.setStatus(booking.getStatus().name());
-        response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+        response.setTimeAgo(getTimeAgo(booking.getUpdatedAt()));
 
         return response;
     }
@@ -166,7 +163,6 @@ public class BookingServiceImpl implements BookingService {
                 // Client can only cancel if PENDING or ACCEPTED
                 if (currentStatus == BookingStatus.PENDING || currentStatus == BookingStatus.ACCEPTED) {
                     booking.setStatus(newStatus);
-                    booking.setUpdatedAt(LocalDateTime.now());
                 } else {
                     throw new InvalidBookingStatusTransitionException(
                             "Cannot cancel a booking that is " + currentStatus.name() + ". Only PENDING or ACCEPTED bookings can be cancelled."
@@ -184,7 +180,6 @@ public class BookingServiceImpl implements BookingService {
                 case ACCEPTED:
                     if (currentStatus == BookingStatus.PENDING) {
                         booking.setStatus(newStatus);
-                        booking.setUpdatedAt(LocalDateTime.now());
                     } else {
                         throw new InvalidBookingStatusTransitionException("Booking must be PENDING to be ACCEPTED.");
                     }
@@ -192,7 +187,6 @@ public class BookingServiceImpl implements BookingService {
                 case DECLINED:
                     if (currentStatus == BookingStatus.PENDING) {
                         booking.setStatus(newStatus);
-                        booking.setUpdatedAt(LocalDateTime.now());
                     } else {
                         throw new InvalidBookingStatusTransitionException("Booking must be PENDING to be DECLINED.");
                     }
@@ -200,7 +194,6 @@ public class BookingServiceImpl implements BookingService {
                 case COMPLETED:
                     if (currentStatus == BookingStatus.ACCEPTED) {
                         booking.setStatus(newStatus);
-                        booking.setUpdatedAt(LocalDateTime.now());
                     } else {
                         throw new InvalidBookingStatusTransitionException("Booking must be ACCEPTED to be COMPLETED.");
                     }
@@ -215,6 +208,8 @@ public class BookingServiceImpl implements BookingService {
 
         // Save the updated booking
         Booking updatedBooking = bookingRepository.save(booking);
+        return mapToBookingResponse(updatedBooking);
+    }
 
     private BookingResponse mapToResponse(Booking booking) {
         BookingResponse response = new BookingResponse();
@@ -236,8 +231,8 @@ public class BookingServiceImpl implements BookingService {
         return response;
     }
 
-    private String getTimeAgo(LocalDateTime createdAt) {
-        Duration duration = Duration.between(createdAt, LocalDateTime.now());
+    private String getTimeAgo(LocalDateTime timestamp){
+        Duration duration = Duration.between(timestamp, LocalDateTime.now());
         long seconds = duration.getSeconds();
 
         if (seconds < 60) return seconds + " seconds ago";

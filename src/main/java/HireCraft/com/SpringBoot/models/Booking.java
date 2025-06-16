@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,8 +36,10 @@ public class Booking {
     private BookingStatus status;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
-
+    @UpdateTimestamp // This annotation automatically updates the timestamp on every entity modification
+    private LocalDateTime updatedAt;
 }
 
