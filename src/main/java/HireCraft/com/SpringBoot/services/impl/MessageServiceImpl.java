@@ -30,6 +30,14 @@ public class MessageServiceImpl implements MessageService {
     private final ServiceProviderProfileRepository providerRepository;
     private final EncryptorUtil encryptorUtil;
 
+    public MessageServiceImpl(MessageRepository messageRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository providerRepository, EncryptorUtil encryptorUtil) {
+        this.messageRepository = messageRepository;
+        this.bookingRepository = bookingRepository;
+        this.clientProfileRepository = clientProfileRepository;
+        this.providerRepository = providerRepository;
+        this.encryptorUtil = encryptorUtil;
+    }
+
     @Override
     public void sendMessageToBooking(MessageRequest request, UserDetails userDetails) {
         Booking booking = bookingRepository.findById(request.getBookingId())

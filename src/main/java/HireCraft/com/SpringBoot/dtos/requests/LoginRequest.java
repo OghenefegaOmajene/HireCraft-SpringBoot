@@ -18,5 +18,21 @@ public class LoginRequest {
 
     @NotBlank(message = "Password must not be blank")
     private String password;
+
+    public @Email(message = "Must be a valid email address") @NotBlank(message = "Email must not be blank") String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@Email(message = "Must be a valid email address") @NotBlank(message = "Email must not be blank") String email) {
+        this.email = email;
+    }
+
+    public @NotBlank(message = "Password must not be blank") String getPassword() {
+        return password;
+    }
+
+    public void setPassword(@NotBlank(message = "Password must not be blank") String password) {
+        this.password = password;
+    }
 }
 

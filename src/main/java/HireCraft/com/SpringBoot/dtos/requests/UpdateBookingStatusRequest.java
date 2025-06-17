@@ -12,4 +12,8 @@ import lombok.AllArgsConstructor;
 public class UpdateBookingStatusRequest {
     @NotNull(message = "New status cannot be null")
     private BookingStatus newStatus;
+
+    public @NotNull(message = "New status cannot be null") BookingStatus getNewStatus() {
+        return newStatus;
+    }
 }

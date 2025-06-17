@@ -21,6 +21,10 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
+
     @PostMapping("/create-review")
     @PreAuthorize("hasAuthority('ADD_REVIEW')")
     public ResponseEntity<ReviewResponse> createReview(@RequestBody @Valid ReviewRequest request,

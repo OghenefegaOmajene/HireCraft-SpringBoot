@@ -20,5 +20,7 @@ public class UserListResponse {
     private String state;
     private String country;
 
+    public UserListResponse(Long id, String firstName, String lastName, String email, String phoneNumber, String city, String state, String country, String name) {
+    }
 }
 

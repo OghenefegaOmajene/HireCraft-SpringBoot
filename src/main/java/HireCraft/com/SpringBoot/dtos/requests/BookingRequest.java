@@ -12,5 +12,21 @@ public class BookingRequest {
     private String timeSlot;
     private String estimatedDuration;
     private String description;
+
+    public Long getProviderId() {
+        return providerId;
+    }
+
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public String getEstimatedDuration() {
+        return estimatedDuration;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
 

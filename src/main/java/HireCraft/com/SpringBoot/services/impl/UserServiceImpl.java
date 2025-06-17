@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@NoArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream()
                 .map(user -> new UserListResponse(
                         user.getId(),
-                        user.getFistName(),
+                        user.getFirstName(),
                         user.getLastName(),
                         user.getEmail(),
                         user.getPhoneNumber(),
@@ -189,17 +188,12 @@ public class UserServiceImpl implements UserService {
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
 
-            log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
+//            log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
             return cvUrl;
-        } catch (IOException e) {
-            // Optimized log.error for IOException:
-            // Passes the exception 'e' as the last argument so its stack trace is logged automatically.
-            log.error("Failed to upload CV for user {}. File processing error: {}", email, e.getMessage(), e);
-            throw new RuntimeException("Failed to upload CV due to a file processing error.", e);
         } catch (RuntimeException e) {
             // Optimized log.error for RuntimeException:
             // Passes the exception 'e' as the last argument so its stack trace is logged automatically.
-            log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
+//            log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to upload CV to storage service.", e);
         }
     }

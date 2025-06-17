@@ -37,6 +37,14 @@ public class SecurityConfig {
     private final RestAuthenticationEntryPoint authEntryPoint;
     private final RestAuthenticationFailureHandler failureHandler;
 
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, CustomUserDetailsService userDetailsService, RestAccessDeniedHandler accessDeniedHandler, RestAuthenticationEntryPoint authEntryPoint, RestAuthenticationFailureHandler failureHandler) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userDetailsService = userDetailsService;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authEntryPoint = authEntryPoint;
+        this.failureHandler = failureHandler;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
         JwtAuthenticationFilter authFilter = new JwtAuthenticationFilter(authManager, jwtTokenProvider);

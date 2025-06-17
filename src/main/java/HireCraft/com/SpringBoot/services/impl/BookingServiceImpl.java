@@ -297,6 +297,15 @@ public class BookingServiceImpl implements BookingService {
     private final MessageRepository messageRepository;
     private final EncryptorUtil encryptorUtil;
 
+    public BookingServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, MessageRepository messageRepository, EncryptorUtil encryptorUtil) {
+        this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
+        this.clientProfileRepository = clientProfileRepository;
+        this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+        this.messageRepository = messageRepository;
+        this.encryptorUtil = encryptorUtil;
+    }
+
     @Override
     public BookingResponse createBooking(BookingRequest request, UserDetails userDetails) {
         ClientProfile clientprofile = clientProfileRepository.findByUserEmail(userDetails.getUsername())

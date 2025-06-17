@@ -29,7 +29,63 @@ public class ClientProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-//    @OneToOne(fetch = FetchType.LAZY)
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getCompanyWebsiteUrl() {
+        return companyWebsiteUrl;
+    }
+
+    public void setCompanyWebsiteUrl(String companyWebsiteUrl) {
+        this.companyWebsiteUrl = companyWebsiteUrl;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id", referencedColumnName = "id")
 //    private User user;
 

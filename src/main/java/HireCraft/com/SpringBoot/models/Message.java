@@ -29,4 +29,52 @@ public class Message {
 
     @CreationTimestamp
     private LocalDateTime sentAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ClientProfile getClientProfile() {
+        return clientProfile;
+    }
+
+    public void setClientProfile(ClientProfile clientProfile) {
+        this.clientProfile = clientProfile;
+    }
+
+    public ServiceProviderProfile getProviderProfile() {
+        return providerProfile;
+    }
+
+    public void setProviderProfile(ServiceProviderProfile providerProfile) {
+        this.providerProfile = providerProfile;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public String getEncryptedContent() {
+        return encryptedContent;
+    }
+
+    public void setEncryptedContent(String encryptedContent) {
+        this.encryptedContent = encryptedContent;
+    }
+
+    public LocalDateTime getSentAt() {
+        return sentAt;
+    }
+
+    public void setSentAt(LocalDateTime sentAt) {
+        this.sentAt = sentAt;
+    }
 }

@@ -20,6 +20,10 @@ public class MessageWebSocketController {
 
     private final MessageService messageService;
 
+    public MessageWebSocketController(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     @MessageMapping("/chat/send")
     @SendTo("/topic/messages/{bookingId}")
     public MessageResponse sendMessage(@Payload MessageRequest request,

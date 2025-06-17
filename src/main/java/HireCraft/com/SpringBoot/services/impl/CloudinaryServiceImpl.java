@@ -54,6 +54,10 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
 
+    public CloudinaryServiceImpl(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
+
     @Override
     public String uploadProfileImage(MultipartFile file) {
         try {

@@ -22,6 +22,10 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('BOOK_SERVICE_PROVIDER')")
     public BookingResponse createBooking(@RequestBody BookingRequest request,

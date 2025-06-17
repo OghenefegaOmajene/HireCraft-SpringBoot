@@ -20,6 +20,12 @@ public class MessageController {
 
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
+
+    public MessageController(MessageService messageService, SimpMessagingTemplate messagingTemplate) {
+        this.messageService = messageService;
+        this.messagingTemplate = messagingTemplate;
+    }
+
     /**
      * Send a new message (encrypted) linked to a booking.
      */

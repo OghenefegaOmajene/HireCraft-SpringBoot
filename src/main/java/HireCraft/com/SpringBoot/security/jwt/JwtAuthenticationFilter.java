@@ -20,6 +20,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AuthenticationManager authManager;
     private final JwtTokenProvider jwtTokenProvider;
 
+    public JwtAuthenticationFilter(AuthenticationManager authManager, JwtTokenProvider jwtTokenProvider) {
+        this.authManager = authManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationManager authManager, JwtTokenProvider jwtTokenProvider) {
+        super(authenticationManager);
+        this.authManager = authManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {

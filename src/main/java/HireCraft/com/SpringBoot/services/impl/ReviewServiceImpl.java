@@ -26,6 +26,13 @@ public class ReviewServiceImpl implements ReviewService {
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
 
+    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository) {
+        this.reviewRepository = reviewRepository;
+        this.userRepository = userRepository;
+        this.clientProfileRepository = clientProfileRepository;
+        this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+    }
+
     @Override
     public ReviewResponse createReview(ReviewRequest request, UserDetails userDetails) {
         // Get authenticated user
