@@ -68,5 +68,22 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new RuntimeException("Failed to upload profile image", e);
         }
     }
+
+    public String uploadFile(MultipartFile file, String folderName) throws IOException {
+        try {
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", folderName, // e.g., "cv_uploads"
+                            "resource_type", "auto" // Auto-detect file type (raw for docs, image for images)
+                    )
+            );
+            return uploadResult.get("url").toString(); // Returns the URL of the uploaded file
+        } catch (IOException e) {
+            // Log the error
+            e.printStackTrace();
+            throw new IOException("Failed to upload file to Cloudinary", e);
+        }
+    }
 }
 

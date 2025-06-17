@@ -17,4 +17,5 @@ public interface UserService {
     UserDetailResponse getUserByEmail(String email);
     UserDetailResponse updateUserProfile(String email, UnifiedUserProfileUpdateRequest request);
     String updateProfilePicture(String email, MultipartFile file);
+    String uploadCv(String email, MultipartFile file);
 }

@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
 import HireCraft.com.SpringBoot.enums.RoleName;
+import HireCraft.com.SpringBoot.exceptions.InvalidCvFileException;
 import HireCraft.com.SpringBoot.models.ClientProfile;
 import HireCraft.com.SpringBoot.models.Role;
 import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
@@ -19,12 +20,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import HireCraft.com.SpringBoot.exceptions.UserNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +120,6 @@ public class UserServiceImpl implements UserService {
             if(request.getOccupation() !=null) providerProfile.setOccupation(request.getOccupation());
             if(request.getHourlyRate() !=null) providerProfile.setHourlyRate(request.getHourlyRate());
             if (request.getProviderBio() != null) providerProfile.setBio(request.getProviderBio());
-            if (request.getCvUrl() != null) providerProfile.setCvUrl(request.getCvUrl());
             if (request.getSkills() != null && !request.getSkills().isEmpty()) {
                 providerProfile.setSkills(request.getSkills());
             }
@@ -143,6 +147,51 @@ public class UserServiceImpl implements UserService {
         return url;
     }
 
+    @Override
+    @Transactional // Ensure this method is transactional as it modifies user data
+    public String uploadCv(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
+
+        // Ensure the user is a service provider if CV upload is exclusive to them
+        if (user.getServiceProviderProfile() == null) {
+            throw new IllegalArgumentException("User is not a service provider or does not have a provider profile.");
+        }
+
+        if (file.isEmpty()) {
+            throw new InvalidCvFileException("Please select a file to upload.");
+        }
+
+        // Basic validation for CV file types (PDF and Word documents)
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equals("application/pdf") &&
+                !contentType.equals("application/msword") && // .doc
+                !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) { // .docx
+            throw new InvalidCvFileException("Only PDF and Word documents are allowed for CVs.");
+        }
+
+        try {
+            String folder = "hirecraft_cvs"; // Dedicated folder for CVs in Cloudinary
+            String cvUrl = cloudinaryService.uploadFile(file, folder);
+
+            // Update the ServiceProviderProfile with the new CV URL
+            ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
+            providerProfile.setCvUrl(cvUrl);
+            serviceProviderProfileRepository.save(providerProfile); // Save the updated profile
+
+            user.setUpdatedAt(LocalDateTime.now()); // Mark user as updated
+            userRepository.save(user); // Save the user (though profile save is enough for CV URL)
+
+            log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
+            return cvUrl;
+        } catch (IOException e) {
+            log.error("Failed to upload CV for user {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to upload CV due to a file processing error.", e);
+        } catch (RuntimeException e) { // Catch other runtime exceptions from CloudinaryService
+            log.error("Cloudinary service error during CV upload for user {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to upload CV to storage service.", e);
+        }
+    }
 
     private UserDetailResponse mapToDetail(User user) {
         // Default values for profile-specific fields
