@@ -3,9 +3,12 @@ package HireCraft.com.SpringBoot.controllers;
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
+import HireCraft.com.SpringBoot.exceptions.InvalidCvFileException;
+import HireCraft.com.SpringBoot.exceptions.UserNotFoundException;
 import HireCraft.com.SpringBoot.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -69,5 +73,20 @@ public class UserController {
 
         String url = userService.updateProfilePicture(principal.getUsername(), file);
         return ResponseEntity.ok(Map.of("profilePictureUrl", url));
+    }
+
+    @PostMapping("/upload-cv") // Cleaner endpoint, no need for {email} in path
+    public ResponseEntity<?> uploadCv(Principal principal, @RequestParam("file") MultipartFile file) {
+        try {
+            // The service layer will use the principal to find the user and upload the CV
+            String cvUrl = userService.uploadCv(principal, file);
+            return ResponseEntity.ok(cvUrl); // Return the URL of the uploaded CV
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (InvalidCvFileException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (RuntimeException e) { // Catch any other unexpected errors during upload
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload CV: " + e.getMessage());
+        }
     }
 }

@@ -14,6 +14,7 @@ import HireCraft.com.SpringBoot.services.UserService;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
 import HireCraft.com.SpringBoot.models.User;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @Service
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -41,12 +43,19 @@ public class UserServiceImpl implements UserService {
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
 
+    public UserServiceImpl(UserRepository userRepository, CloudinaryService cloudinaryService, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository) {
+        this.userRepository = userRepository;
+        this.cloudinaryService = cloudinaryService;
+        this.clientProfileRepository = clientProfileRepository;
+        this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+    }
+
     @Override
     public List<UserListResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(user -> new UserListResponse(
                         user.getId(),
-                        user.getFirstName(),
+                        user.getFistName(),
                         user.getLastName(),
                         user.getEmail(),
                         user.getPhoneNumber(),
@@ -148,47 +157,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional // Ensure this method is transactional as it modifies user data
-    public String uploadCv(String email, MultipartFile file) {
+    @Transactional
+    public String uploadCv(Principal principal, MultipartFile file) {
+        String email = principal.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
-        // Ensure the user is a service provider if CV upload is exclusive to them
         if (user.getServiceProviderProfile() == null) {
-            throw new IllegalArgumentException("User is not a service provider or does not have a provider profile.");
+            throw new IllegalArgumentException("User is not a service provider or does not have a provider profile. CV upload is for providers only.");
         }
 
         if (file.isEmpty()) {
             throw new InvalidCvFileException("Please select a file to upload.");
         }
 
-        // Basic validation for CV file types (PDF and Word documents)
         String contentType = file.getContentType();
         if (contentType == null || (!contentType.equals("application/pdf") &&
-                !contentType.equals("application/msword") && // .doc
-                !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) { // .docx
+                !contentType.equals("application/msword") &&
+                !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
             throw new InvalidCvFileException("Only PDF and Word documents are allowed for CVs.");
         }
 
         try {
-            String folder = "hirecraft_cvs"; // Dedicated folder for CVs in Cloudinary
+            String folder = "hirecraft_cvs";
             String cvUrl = cloudinaryService.uploadFile(file, folder);
 
-            // Update the ServiceProviderProfile with the new CV URL
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
             providerProfile.setCvUrl(cvUrl);
-            serviceProviderProfileRepository.save(providerProfile); // Save the updated profile
+            serviceProviderProfileRepository.save(providerProfile);
 
-            user.setUpdatedAt(LocalDateTime.now()); // Mark user as updated
-            userRepository.save(user); // Save the user (though profile save is enough for CV URL)
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
 
             log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
             return cvUrl;
         } catch (IOException e) {
-            log.error("Failed to upload CV for user {}: {}", email, e.getMessage(), e);
+            // Optimized log.error for IOException:
+            // Passes the exception 'e' as the last argument so its stack trace is logged automatically.
+            log.error("Failed to upload CV for user {}. File processing error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to upload CV due to a file processing error.", e);
-        } catch (RuntimeException e) { // Catch other runtime exceptions from CloudinaryService
-            log.error("Cloudinary service error during CV upload for user {}: {}", email, e.getMessage(), e);
+        } catch (RuntimeException e) {
+            // Optimized log.error for RuntimeException:
+            // Passes the exception 'e' as the last argument so its stack trace is logged automatically.
+            log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to upload CV to storage service.", e);
         }
     }
