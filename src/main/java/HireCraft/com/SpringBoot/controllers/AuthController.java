@@ -17,7 +17,7 @@ import HireCraft.com.SpringBoot.services.AuthService;
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
 

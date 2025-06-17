@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 import java.security.Principal;
 
 @Controller
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class MessageWebSocketController {
 
     private final MessageService messageService;

@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+///@AllArgsConstructor
 public class UserDetailResponse {
     private Long id;
     private String userRole;

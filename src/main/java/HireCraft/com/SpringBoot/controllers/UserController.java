@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;

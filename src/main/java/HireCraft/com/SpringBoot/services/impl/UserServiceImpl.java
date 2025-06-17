@@ -23,6 +23,8 @@ import HireCraft.com.SpringBoot.exceptions.UserNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -32,10 +34,12 @@ import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
+///@RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
+//@Slf4j
 public class UserServiceImpl implements UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
@@ -148,7 +152,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
 
-        String url = cloudinaryService.uploadProfileImage(file);
+        String url; // Declare url outside try-catch
+        try {
+            url = cloudinaryService.uploadProfileImage(file); // Call can throw IOException
+        } catch (IOException e) {
+            log.error("Failed to upload profile picture for user {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to upload profile picture due to a file processing error.", e);
+        }
+
         user.setProfilePictureUrl(url);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -177,9 +188,10 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCvFileException("Only PDF and Word documents are allowed for CVs.");
         }
 
+        String cvUrl; // Declare cvUrl outside try-catch
         try {
             String folder = "hirecraft_cvs";
-            String cvUrl = cloudinaryService.uploadFile(file, folder);
+            cvUrl = cloudinaryService.uploadFile(file, folder); // Call can throw IOException
 
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
             providerProfile.setCvUrl(cvUrl);
@@ -188,12 +200,14 @@ public class UserServiceImpl implements UserService {
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
 
-//            log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
+            log.info("CV uploaded successfully for user {}: {}", email, cvUrl);
             return cvUrl;
+        } catch (IOException e) { // Catch the IOException from CloudinaryService methods
+            log.error("Failed to upload CV for user {}. File processing error: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to upload CV due to a file processing error.", e);
         } catch (RuntimeException e) {
-            // Optimized log.error for RuntimeException:
-            // Passes the exception 'e' as the last argument so its stack trace is logged automatically.
-//            log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
+            // This catch block handles RuntimeExceptions (like those from CloudinaryServiceImpl if converted)
+            log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to upload CV to storage service.", e);
         }
     }

@@ -46,13 +46,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
+//@RequiredArgsConstructor
+//@Slf4j
 public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
+
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryServiceImpl.class);
 
     public CloudinaryServiceImpl(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
@@ -67,7 +71,8 @@ public class CloudinaryServiceImpl implements CloudinaryService {
                     "transformation", new Transformation().width(300).height(300).crop("fill")
             ));
             return uploadResult.get("secure_url").toString();
-        } catch (IOException | RuntimeException e) {
+        }
+        catch (IOException | RuntimeException e) {
             log.error("Cloudinary upload failed: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to upload profile image", e);
         }
