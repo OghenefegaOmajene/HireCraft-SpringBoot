@@ -287,7 +287,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
     private final UserRepository userRepository;
