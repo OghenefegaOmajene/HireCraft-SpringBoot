@@ -15,6 +15,10 @@ import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
 import HireCraft.com.SpringBoot.dtos.response.UserListResponse;
 import HireCraft.com.SpringBoot.models.User;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -210,6 +214,106 @@ public class UserServiceImpl implements UserService {
             log.error("Cloudinary service error during CV upload for user {}. Error: {}", email, e.getMessage(), e);
             throw new RuntimeException("Failed to upload CV to storage service.", e);
         }
+    }
+
+    @Override
+    public List<UserDetailResponse> getAllServiceProviders() {
+        // Find all users that have the ROLE_PROVIDER
+        return userRepository.findByRoles_Name(RoleName.ROLE_PROVIDER.name()).stream()
+                .map(this::mapToDetail) // Reuse your existing mapping logic
+                .collect(Collectors.toList());
+    }
+
+    // --- NEW METHOD: Get a single service provider by ID ---
+    @Override
+    public UserDetailResponse getServiceProviderById(Long providerId) {
+        // Find the user by ID
+        User user = userRepository.findById(providerId)
+                .orElseThrow(() -> new UserNotFoundException("Service Provider not found with ID " + providerId));
+
+        // Check if the found user actually has the ROLE_PROVIDER
+        boolean isProvider = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(RoleName.ROLE_PROVIDER.name()));
+
+        if (!isProvider) {
+            throw new UserNotFoundException("User with ID " + providerId + " is not a Service Provider.");
+        }
+
+        return mapToDetail(user);
+    }
+
+
+    // --- Optional: Implementation for Filtering and Pagination ---
+    @Override
+    public Page<UserDetailResponse> getFilteredServiceProviders(
+            String occupation,
+            Set<String> skills,
+            String city,
+            String state,
+            String country,
+            Double minRating,
+            Pageable pageable) {
+
+        // Use Spring Data JPA Specifications for dynamic queries
+        Specification<User> spec = Specification.where(null);
+
+        // Filter by ROLE_PROVIDER
+        spec = spec.and((root, query, criteriaBuilder) -> {
+            // Join with roles to filter by role name
+            return criteriaBuilder.equal(root.join("roles").get("name"), RoleName.ROLE_PROVIDER.name());
+        });
+
+        // Add filters based on provided criteria
+        if (occupation != null && !occupation.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("serviceProviderProfile").get("occupation")), "%" + occupation.toLowerCase() + "%"));
+        }
+        if (city != null && !city.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("city")), "%" + city.toLowerCase() + "%"));
+        }
+        if (state != null && !state.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("state")), "%" + state.toLowerCase() + "%"));
+        }
+        if (country != null && !country.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("country")), "%" + country.toLowerCase() + "%"));
+        }
+        if (minRating != null && minRating >= 0) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("serviceProviderProfile").get("averageRating"), minRating));
+        }
+
+        // Filtering by skills is more complex as 'skills' is a Set<String>
+        // You might need to use a custom query or a different data structure if you want advanced "contains any of these skills" querying.
+        // For a simple "provider has ALL of these skills", it's feasible with 'LIKE' on a comma-separated string,
+        // but for 'ANY', it often requires a more sophisticated approach or native query if skills are stored as a single string.
+        // If skills are stored in a separate join table, it's easier.
+        // Assuming `skills` in ServiceProviderProfile is a single string for now (e.g., "Java,Spring,React")
+        // If `skills` is a @ElementCollection Set<String> in JPA, querying it directly can be tricky with Specifications.
+        // For a simple solution, let's assume `skills` property in ServiceProviderProfile is a single string.
+        // If it's a real Set<String>, you might need to iterate or use a `MemberOf` criteria builder function or a native query.
+        if (skills != null && !skills.isEmpty()) {
+            // This is a basic approach and might not be efficient for large skill sets or if skills are stored as a collection.
+            // It assumes `skills` in `ServiceProviderProfile` is mapped as a string like "skill1,skill2"
+            // or that you want to check if the stored skills string contains ANY of the provided skills.
+            for (String skill : skills) {
+                spec = spec.and((root, query, criteriaBuilder) ->
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("serviceProviderProfile").get("skills")), "%" + skill.toLowerCase() + "%")
+                );
+            }
+            // A more robust solution for Set<String> would involve a custom query or a separate skill entity.
+        }
+
+
+        Page<User> userPage = userRepository.findAll(spec, pageable);
+
+        List<UserDetailResponse> content = userPage.getContent().stream()
+                .map(this::mapToDetail)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, userPage.getTotalElements());
     }
 
     private UserDetailResponse mapToDetail(User user) {

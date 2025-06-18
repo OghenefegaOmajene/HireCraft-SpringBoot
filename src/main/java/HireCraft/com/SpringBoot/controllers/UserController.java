@@ -45,12 +45,19 @@ public class UserController {
         return ResponseEntity.ok(profile);
     }
 
-    @GetMapping("/view-profile")
+    @GetMapping("/view-profile/{id}")
     @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")
     public ResponseEntity<UserDetailResponse> getUserById(@PathVariable Long id) {
         UserDetailResponse user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
+
+//    @GetMapping("/get-all-providers/provider/{providerId}")
+//    @PreAuthorize("hasAuthority('VIEW_USER_PROFILE')")
+//    public ResponseEntity<UserDetailResponse> getUserById(@PathVariable Long id) {
+//        UserDetailResponse user = userService.getUserById(id);
+//        return ResponseEntity.ok(user);
+//    }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('DELETE_USER_ACCOUNT') or hasAuthority('MANAGE_USERS')")
