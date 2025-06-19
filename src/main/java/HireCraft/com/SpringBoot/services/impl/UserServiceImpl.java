@@ -319,12 +319,14 @@ public class UserServiceImpl implements UserService {
     private UserDetailResponse mapToDetail(User user) {
         // Default values for profile-specific fields
         double averageRating = 0.0;
+        Long providerId = null;
         String occupation = null;
         String hourlyRate=null;
         String providerBio = null;
         Set<String> skills = null;
         String cvUrl = null;
 
+        Long clientId = null;
         String companyName = null;
         String position = null;
         String profession = null;
@@ -356,6 +358,7 @@ public class UserServiceImpl implements UserService {
 
         if (user.getServiceProviderProfile() != null) {
             ServiceProviderProfile providerProfile = user.getServiceProviderProfile();
+            providerId = providerProfile.getId();
             averageRating = providerProfile.getAverageRating();
             occupation = providerProfile.getOccupation();
             hourlyRate = providerProfile.getHourlyRate();
@@ -364,6 +367,7 @@ public class UserServiceImpl implements UserService {
             cvUrl = providerProfile.getCvUrl();
         } else if (user.getClientProfile() != null) {
             ClientProfile clientProfile = user.getClientProfile();
+            clientId = clientProfile.getId();
             companyName = clientProfile.getCompanyName();
             position = clientProfile.getPosition();
             profession = clientProfile.getProfession();
@@ -373,6 +377,8 @@ public class UserServiceImpl implements UserService {
 
         return new UserDetailResponse(
                 user.getId(),
+                providerId,
+                clientId,
                 userRole,
                 user.getFirstName(),
                 user.getLastName(),

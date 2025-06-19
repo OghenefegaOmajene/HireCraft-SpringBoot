@@ -12,6 +12,8 @@ import java.util.Set;
 ///@AllArgsConstructor
 public class UserDetailResponse {
     private Long id;
+    private Long providerId;
+    private Long clientId;
     private String userRole;
     private String firstName;
     private String lastName;
@@ -39,8 +41,11 @@ public class UserDetailResponse {
     private LocalDateTime updatedAt;
     private String profilePictureUrl;
 
-    public UserDetailResponse(Long id, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, String providerBio, Set<String> skills, String cvUrl, String companyName, String position, String profession, String companyWebsiteUrl, String clientBio, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
+
+    public UserDetailResponse(Long id, Long providerId, Long clientId, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, String providerBio, Set<String> skills, String cvUrl, String companyName, String position, String profession, String companyWebsiteUrl, String clientBio, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
         this.id = id;
+        this.providerId = providerId;
+        this.clientId = clientId;
         this.userRole = userRole;
         this.firstName = firstName;
         this.lastName = lastName;

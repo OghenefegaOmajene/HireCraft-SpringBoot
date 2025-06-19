@@ -107,18 +107,28 @@ public class UserController {
         return ResponseEntity.ok(providers);
     }
 
-    // Endpoint to view a specific provider's detailed profile
+//    @GetMapping("/providers/{providerId}")
+//    @PreAuthorize("hasAuthority('VIEW_PROVIDER_PROFILE')")
+//    public ResponseEntity<UserDetailResponse> getServiceProviderProfile(@PathVariable Long providerId) {
+//        try {
+//            UserDetailResponse providerProfile = userService.getServiceProviderById(providerId);
+//            return ResponseEntity.ok(providerProfile);
+//        } catch (UserNotFoundException e) { // Catches both "User not found" and "User is not a Service Provider"
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+//        }
+//    }
+
     @GetMapping("/providers/{providerId}")
     @PreAuthorize("hasAuthority('VIEW_PROVIDER_PROFILE')")
-    public ResponseEntity<UserDetailResponse> getServiceProviderProfile(@PathVariable Long providerId) {
+    public ResponseEntity<?> getServiceProviderProfile(@PathVariable Long providerId) {
         try {
             UserDetailResponse providerProfile = userService.getServiceProviderById(providerId);
-            return ResponseEntity.ok(providerProfile);
-        } catch (UserNotFoundException e) { // Catches both "User not found" and "User is not a Service Provider"
+            return ResponseEntity.ok(providerProfile); // Returns ResponseEntity<UserDetailResponse>
+        } catch (UserNotFoundException e) {
+            // Returns ResponseEntity<String>
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
     // Optional: Endpoint for filtered and paginated providers
     @GetMapping("/providers")
     @PreAuthorize("hasAuthority('VIEW_PROVIDERS')")
