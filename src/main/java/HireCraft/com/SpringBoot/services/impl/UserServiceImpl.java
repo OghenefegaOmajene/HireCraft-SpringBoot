@@ -224,23 +224,27 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    // --- NEW METHOD: Get a single service provider by ID ---
     @Override
-    public UserDetailResponse getServiceProviderById(Long providerId) {
-        // Find the user by ID
-        User user = userRepository.findById(providerId)
-                .orElseThrow(() -> new UserNotFoundException("Service Provider not found with ID " + providerId));
+    public UserDetailResponse getServiceProviderById(Long providerId) { // Parameter name changed for clarity
+        // Find the ServiceProviderProfile by its primary key (ID)
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findById(providerId) // Use findById
+                .orElseThrow(() -> new UserNotFoundException("Service Provider Profile not found with ID " + providerId));
 
-        // Check if the found user actually has the ROLE_PROVIDER
+        User user = providerProfile.getUser(); // Get the associated User
+
+        // Check if the associated user actually has the ROLE_PROVIDER
         boolean isProvider = user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals(RoleName.ROLE_PROVIDER.name()));
 
         if (!isProvider) {
-            throw new UserNotFoundException("User with ID " + providerId + " is not a Service Provider.");
+            // This case should ideally not be hit if your data is consistent,
+            // as we already found a ServiceProviderProfile.
+            throw new UserNotFoundException("User associated with Provider Profile ID " + providerId + " is not a Service Provider.");
         }
 
         return mapToDetail(user);
     }
+
 
 
     // --- Optional: Implementation for Filtering and Pagination ---

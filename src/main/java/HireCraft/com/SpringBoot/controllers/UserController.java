@@ -129,6 +129,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
     // Optional: Endpoint for filtered and paginated providers
     @GetMapping("/providers")
     @PreAuthorize("hasAuthority('VIEW_PROVIDERS')")
