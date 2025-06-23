@@ -278,6 +278,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -516,5 +517,26 @@ public class BookingServiceImpl implements BookingService {
         if (days < 30) return days + " days ago";
         long months = days / 30;
         return months + " months ago";
+    }
+
+    // New methods implementation
+    @Override
+    public long getNewBookingRequestsCountToday(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        // Get start and end of today
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+
+        return bookingRepository.countNewBookingsForProviderByDate(providerProfile.getId(), startOfDay, endOfDay);
+    }
+
+    @Override
+    public long getCompletedJobsCountForProvider(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        return bookingRepository.countCompletedJobsForProvider(providerProfile.getId());
     }
 }

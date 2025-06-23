@@ -54,4 +54,19 @@ public class BookingController {
         BookingResponse updatedBooking = bookingService.updateBookingStatus(bookingId, request, userDetails);
         return ResponseEntity.ok(updatedBooking);
     }
+
+    @GetMapping("/provider/dashboard/new-requests-today")
+    @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
+    public ResponseEntity<Long> getNewBookingRequestsToday(@AuthenticationPrincipal UserDetails userDetails) {
+        long count = bookingService.getNewBookingRequestsCountToday(userDetails);
+        return ResponseEntity.ok(count);
+    }
+
+    // New endpoint for completed jobs count
+    @GetMapping("/provider/dashboard/completed-jobs")
+    @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
+    public ResponseEntity<Long> getCompletedJobsCount(@AuthenticationPrincipal UserDetails userDetails) {
+        long count = bookingService.getCompletedJobsCountForProvider(userDetails);
+        return ResponseEntity.ok(count);
+    }
 }

@@ -13,4 +13,7 @@ public interface BookingService {
     List<BookingResponse> getBookingsForProvider(UserDetails userDetails);
     BookingResponse updateBookingStatus(Long bookingId, UpdateBookingStatusRequest request, UserDetails userDetails);
     List<ClientBookingViewResponse> getBookingsForClient(UserDetails userDetails);
+
+    long getNewBookingRequestsCountToday(UserDetails userDetails);
+    long getCompletedJobsCountForProvider(UserDetails userDetails);
 }
