@@ -133,6 +133,15 @@ public class ReviewServiceImpl implements ReviewService {
         return convertToResponseList(reviews);
     }
 
+    @Override
+    public long getReviewCountForProvider(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        // This is the core logic: count reviews by provider profile ID
+        return reviewRepository.countByProviderProfile_Id(providerProfile.getId());
+    }
+
     private List<ReviewResponse> convertToResponseList(List<Review> reviews) {
         return reviews.stream()
                 .map(review -> {

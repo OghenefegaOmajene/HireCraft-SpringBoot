@@ -51,6 +51,14 @@ public class ReviewController {
         return reviewService.getReviewsByClient(clientId);
     }
 
+    @GetMapping("/provider/dashboard/total-reviews")
+    @PreAuthorize("hasRole('ROLE_PROVIDER')") // Ensure only providers can access this
+    public ResponseEntity<Long> getTotalReviewsForProvider(@AuthenticationPrincipal UserDetails userDetails) {
+        long reviewCount = reviewService.getReviewCountForProvider(userDetails);
+        return ResponseEntity.ok(reviewCount);
+    }
+
+
     @GetMapping("/client/{clientId}/provider/{providerId}")
     @PreAuthorize("hasAuthority('VIEW_CLIENT_REVIEWS') or hasAuthority('VIEW_ALL_REVIEWS')")
     public List<ReviewResponse> getReviewsByClientForProvider(@PathVariable Long clientId,
