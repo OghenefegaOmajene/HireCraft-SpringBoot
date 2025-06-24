@@ -4,12 +4,11 @@ package HireCraft.com.SpringBoot.models;
 import HireCraft.com.SpringBoot.enums.NotificationType;
 import HireCraft.com.SpringBoot.enums.ReferenceType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "notifications")
 @Data
 @Builder
-@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 public class Notification {
 
     @Id
@@ -37,7 +36,6 @@ public class Notification {
     @Column(nullable = false)
     private Boolean isRead = false;
 
-    @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

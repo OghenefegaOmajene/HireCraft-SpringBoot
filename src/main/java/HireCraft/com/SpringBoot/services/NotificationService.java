@@ -3,6 +3,7 @@ package HireCraft.com.SpringBoot.services;
 import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
 import HireCraft.com.SpringBoot.dtos.response.NotificationResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface NotificationService {
 
     NotificationResponse createNotification(NotificationRequest request);
 
-    List<NotificationResponse> getUserNotifications(Long userId);
+    List<NotificationResponse> getUserNotifications(UserDetails userDetails);
 
     Page<NotificationResponse> getUserNotifications(Long userId, int page, int size);
 

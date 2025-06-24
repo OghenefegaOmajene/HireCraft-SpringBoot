@@ -2,10 +2,12 @@ package HireCraft.com.SpringBoot.controllers;
 
 import HireCraft.com.SpringBoot.dtos.response.NotificationResponse;
 import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
+import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
 import HireCraft.com.SpringBoot.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
-@CrossOrigin(origins = "*")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -24,13 +25,10 @@ public class NotificationController {
     }
 
     // Get all notifications for current user
-    @GetMapping
-    public ResponseEntity<List<NotificationResponse>> getUserNotifications(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // You'll need to extract user ID from UserDetails - adjust based on your implementation
-        Long userId = extractUserIdFromUserDetails(userDetails);
-        List<NotificationResponse> notifications = notificationService.getUserNotifications(userId);
-        return ResponseEntity.ok(notifications);
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ROLE_CLIENT')")
+    public List<NotificationResponse> getUserNotifications(@AuthenticationPrincipal UserDetails userDetails) {
+        return notificationService.getUserNotifications(userDetails);
     }
 
     // Get notifications with pagination

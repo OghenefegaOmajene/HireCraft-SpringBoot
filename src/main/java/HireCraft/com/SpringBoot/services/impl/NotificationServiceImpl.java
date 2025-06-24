@@ -4,13 +4,17 @@ import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
 import HireCraft.com.SpringBoot.dtos.response.NotificationResponse;
 import HireCraft.com.SpringBoot.enums.NotificationType;
 import HireCraft.com.SpringBoot.models.Notification;
+import HireCraft.com.SpringBoot.models.User;
 import HireCraft.com.SpringBoot.repository.NotificationRepository;
+import HireCraft.com.SpringBoot.repository.UserRepository;
 import HireCraft.com.SpringBoot.services.NotificationService; // Import the interface
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +34,12 @@ public class NotificationServiceImpl implements NotificationService { // Impleme
 
     // The NotificationRepository is injected via Lombok's @RequiredArgsConstructor
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -53,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService { // Impleme
                 .referenceType(request.getReferenceType())
                 .isRead(false) // New notifications are initially unread
                 .build();
-
+        notification.setCreatedAt(LocalDateTime.now());
         // Save the notification to the repository
         Notification saved = notificationRepository.save(notification);
 
@@ -61,17 +68,29 @@ public class NotificationServiceImpl implements NotificationService { // Impleme
         return convertToDto(saved);
     }
 
-    /**
-     * Retrieves all notifications for a given user, ordered by creation time descending.
-     *
-     * @param userId The ID of the user.
-     * @return A list of NotificationResponse DTOs.
-     */
+//    @Override
+//    public List<NotificationResponse> getUserNotifications(UserDetails userDetails) {
+//        // Fetch notifications from the repository
+//        List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+//        // Convert entities to DTOs and collect into a list
+//        return notifications.stream()
+//                .map(this::convertToDto)
+//                .collect(Collectors.toList());
+//    }
+
     @Override
-    public List<NotificationResponse> getUserNotifications(Long userId) {
-        // Fetch notifications from the repository
+    public List<NotificationResponse> getUserNotifications(UserDetails userDetails) {
+        // Use userDetails.getUsername() (which is typically the email or unique login)
+        // to find your User entity (or ServiceProviderProfile, ClientProfile, etc.)
+        // This mirrors the logic you used in your ReviewService.
+
+        // Assuming User entity has an 'email' field and a 'findByEmail' method in UserRepository
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + userDetails.getUsername()));
+
+        Long userId = user.getId(); // Get the actual Long ID from your User entity
+
         List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-        // Convert entities to DTOs and collect into a list
         return notifications.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());

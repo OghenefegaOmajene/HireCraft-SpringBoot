@@ -349,11 +349,9 @@ public class BookingServiceImpl implements BookingService {
         Long providerUserId = serviceProviderProfile.getUser().getId();
         String clientFullName = clientprofile.getUser().getFirstName() + " " + clientprofile.getUser().getLastName();
 
-        String formattedTimeSlot = savedBooking.getTimeSlot().format(DateTimeFormatter.ofPattern("MMM dd,yyyy HH:mm"));
-
         // Create a notification request for the provider
         NotificationRequest notificationRequest = NotificationRequest.builder()
-                .message(String.format("New booking request from %s for %s.", clientFullName, formattedTimeSlot))
+                .message(String.format("New booking request from %s", clientFullName))
 //                .message(String.format("New booking request from %s for %s.", clientFullName, savedBooking.getTimeSlot().format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))))
                 .type(NotificationType.NEW_BOOKING_REQUEST) // Assuming this enum value exists
                 .userId(providerUserId)
