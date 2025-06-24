@@ -255,12 +255,15 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
+import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingChartResponse;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import HireCraft.com.SpringBoot.enums.BookingStatus;
+import HireCraft.com.SpringBoot.enums.NotificationType;
+import HireCraft.com.SpringBoot.enums.ReferenceType;
 import HireCraft.com.SpringBoot.exceptions.InvalidBookingStatusTransitionException;
 import HireCraft.com.SpringBoot.exceptions.UnauthorizedBookingActionException;
 import HireCraft.com.SpringBoot.models.Booking;
@@ -275,6 +278,7 @@ import HireCraft.com.SpringBoot.services.BookingService;
 
 import HireCraft.com.SpringBoot.models.Message;
 import HireCraft.com.SpringBoot.repository.MessageRepository;
+import HireCraft.com.SpringBoot.services.NotificationService;
 import HireCraft.com.SpringBoot.services.ReviewService;
 import HireCraft.com.SpringBoot.utils.EncryptorUtil;
 import lombok.RequiredArgsConstructor;
@@ -305,8 +309,9 @@ public class BookingServiceImpl implements BookingService {
     private final MessageRepository messageRepository;
     private final EncryptorUtil encryptorUtil;
     private final ReviewService reviewService;
+    private final NotificationService notificationService;
 
-    public BookingServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, MessageRepository messageRepository, EncryptorUtil encryptorUtil, ReviewService reviewService) {
+    public BookingServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, MessageRepository messageRepository, EncryptorUtil encryptorUtil, ReviewService reviewService, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.clientProfileRepository = clientProfileRepository;
@@ -314,6 +319,7 @@ public class BookingServiceImpl implements BookingService {
         this.messageRepository = messageRepository;
         this.encryptorUtil = encryptorUtil;
         this.reviewService = reviewService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -332,7 +338,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setEstimatedDuration(request.getEstimatedDuration());
         booking.setStatus(BookingStatus.PENDING);
 
-        bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
 
         Message message = new Message();
         message.setBooking(booking);
@@ -340,7 +346,23 @@ public class BookingServiceImpl implements BookingService {
         message.setEncryptedContent(encryptorUtil.encrypt(request.getDescription()));
         messageRepository.save(message);
 
-        return mapToBookingResponse(booking);
+        Long providerUserId = serviceProviderProfile.getUser().getId();
+        String clientFullName = clientprofile.getUser().getFirstName() + " " + clientprofile.getUser().getLastName();
+
+        String formattedTimeSlot = savedBooking.getTimeSlot().format(DateTimeFormatter.ofPattern("MMM dd,yyyy HH:mm"));
+
+        // Create a notification request for the provider
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .message(String.format("New booking request from %s for %s.", clientFullName, formattedTimeSlot))
+//                .message(String.format("New booking request from %s for %s.", clientFullName, savedBooking.getTimeSlot().format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))))
+                .type(NotificationType.NEW_BOOKING_REQUEST) // Assuming this enum value exists
+                .userId(providerUserId)
+                .referenceId(savedBooking.getId())
+                .referenceType(ReferenceType.BOOKING)
+                .build();
+        notificationService.createNotification(notificationRequest);
+
+        return mapToBookingResponse(savedBooking);
     }
 
     @Override

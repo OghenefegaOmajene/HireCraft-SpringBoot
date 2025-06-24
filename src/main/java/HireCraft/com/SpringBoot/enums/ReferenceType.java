@@ -5,6 +5,5 @@ public enum ReferenceType {
     MESSAGE,
     PAYMENT,
     REVIEW,
-    USER,
     PROFILE
 }

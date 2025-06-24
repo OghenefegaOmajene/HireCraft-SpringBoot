@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.enums;
 
 public enum NotificationType {
     MESSAGE,
+    NEW_BOOKING_REQUEST,
     BOOKING_REMINDER,
     PAYMENT_RECEIVED,
     REVIEW_RECEIVED,
