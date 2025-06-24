@@ -1,0 +1,15 @@
+package HireCraft.com.SpringBoot.enums;
+
+public enum NotificationType {
+    MESSAGE,
+    BOOKING_REMINDER,
+    PAYMENT_RECEIVED,
+    REVIEW_RECEIVED,
+    BOOKING_ACCEPTED,
+    BOOKING_DECLINED,
+    BOOKING_COMPLETED,
+    BOOKING_CANCELLED,
+    SYSTEM_ANNOUNCEMENT,
+    PROFILE_UPDATE,
+    GENERAL
+}

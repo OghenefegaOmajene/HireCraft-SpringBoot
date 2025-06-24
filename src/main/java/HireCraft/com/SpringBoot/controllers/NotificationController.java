@@ -1,0 +1,112 @@
+package HireCraft.com.SpringBoot.controllers;
+
+import HireCraft.com.SpringBoot.dtos.response.NotificationResponse;
+import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
+import HireCraft.com.SpringBoot.services.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    // Get all notifications for current user
+    @GetMapping
+    public ResponseEntity<List<NotificationDto>> getUserNotifications(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        // You'll need to extract user ID from UserDetails - adjust based on your implementation
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        List<NotificationDto> notifications = notificationService.getUserNotifications(userId);
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Get notifications with pagination
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<NotificationDto>> getUserNotificationsPaginated(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        Page<NotificationDto> notifications = notificationService.getUserNotifications(userId, page, size);
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Get unread notifications
+    @GetMapping("/unread")
+    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        List<NotificationDto> notifications = notificationService.getUnreadNotifications(userId);
+        return ResponseEntity.ok(notifications);
+    }
+
+    // Get unread count
+    @GetMapping("/unread/count")
+    public ResponseEntity<Long> getUnreadCount(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        long count = notificationService.getUnreadCount(userId);
+        return ResponseEntity.ok(count);
+    }
+
+    // Mark notification as read
+    @PutMapping("/{notificationId}/read")
+    public ResponseEntity<Void> markAsRead(
+            @PathVariable Long notificationId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        boolean updated = notificationService.markAsRead(notificationId, userId);
+        return updated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    // Mark all notifications as read
+    @PutMapping("/read-all")
+    public ResponseEntity<Integer> markAllAsRead(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        int updatedCount = notificationService.markAllAsRead(userId);
+        return ResponseEntity.ok(updatedCount);
+    }
+
+    // Delete notification
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(
+            @PathVariable Long notificationId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserIdFromUserDetails(userDetails);
+        boolean deleted = notificationService.deleteNotification(notificationId, userId);
+        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    // Create notification (for testing or admin purposes)
+    @PostMapping
+    public ResponseEntity<NotificationDto> createNotification(
+            @RequestBody CreateNotificationRequest request) {
+        NotificationDto notification = notificationService.createNotification(request);
+        return ResponseEntity.ok(notification);
+    }
+
+    // Helper method to extract user ID from UserDetails
+    // Adjust this based on your UserDetails implementation
+    private Long extractUserIdFromUserDetails(UserDetails userDetails) {
+        // This is a placeholder - implement based on your User/UserDetails structure
+        // For example, if you have a custom UserDetails implementation:
+        // return ((CustomUserDetails) userDetails).getUserId();
+
+        // Or if you store ID in username:
+        // return Long.parseLong(userDetails.getUsername());
+
+        // For now, returning null - you need to implement this
+        throw new RuntimeException("Implement extractUserIdFromUserDetails based on your UserDetails structure");
+    }
+}
