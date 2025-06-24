@@ -22,6 +22,6 @@ public interface BookingService {
 
     ProviderDashboardMetricsResponse getProviderDashboardMetrics(UserDetails userDetails);
 
-    List<BookingChartResponse> getWeeklyBookingChart(UserDetails userDetails);
+    List<BookingChartResponse> getMonthlyBookingChart(UserDetails userDetails);
     long getRejectedJobsCountForProvider(UserDetails userDetails);
 }

@@ -285,6 +285,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -590,35 +592,43 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public List<BookingChartResponse> getWeeklyBookingChart(UserDetails userDetails) {
+    public List<BookingChartResponse> getMonthlyBookingChart(UserDetails userDetails) {
         ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
-        // Get the last 7 days
+        // Get the last 6 months
         List<BookingChartResponse> chartData = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
-        for (int i = 6; i >= 0; i--) {
-            LocalDate date = today.minusDays(i);
-            LocalDateTime startOfDay = date.atStartOfDay();
-            LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+        for (int i = 5; i >= 0; i--) {
+            LocalDate monthStart = today.minusMonths(i).withDayOfMonth(1);
+            LocalDate monthEnd = monthStart.plusMonths(1).withDayOfMonth(1);
 
-            // Get counts for each status on this date
+            LocalDateTime startOfMonth = monthStart.atStartOfDay();
+            LocalDateTime endOfMonth = monthEnd.atStartOfDay();
+
+            // Get counts for each status for this month
+            List<BookingStatus> acceptedStatuses = Arrays.asList(
+                    BookingStatus.ACCEPTED,
+                    BookingStatus.COMPLETED,
+                    BookingStatus.CANCELLED
+            );
             long acceptedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
-                    providerProfile.getId(), BookingStatus.ACCEPTED, startOfDay, endOfDay);
+                    providerProfile.getId(), acceptedStatuses, startOfMonth, endOfMonth
+            );
 
             long completedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
-                    providerProfile.getId(), BookingStatus.COMPLETED, startOfDay, endOfDay);
+                    providerProfile.getId(), Collections.singletonList(BookingStatus.COMPLETED), startOfMonth, endOfMonth);
 
             long rejectedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
-                    providerProfile.getId(), BookingStatus.DECLINED, startOfDay, endOfDay);
+                    providerProfile.getId(), Collections.singletonList(BookingStatus.DECLINED), startOfMonth, endOfMonth);
 
-            // Format the date for display
-            String dayName = date.format(DateTimeFormatter.ofPattern("EEE")); // Mon, Tue, etc.
-            String fullDate = date.format(DateTimeFormatter.ofPattern("MMM d")); // Jan 15
+            // Format the month for display
+            String monthName = monthStart.format(DateTimeFormatter.ofPattern("MMM")); // Jan, Feb, etc.
+            String fullDate = monthStart.format(DateTimeFormatter.ofPattern("MMM yyyy")); // Jan 2024
 
             BookingChartResponse chartResponse = BookingChartResponse.builder()
-                    .date(dayName)
+                    .month(monthName)
                     .fullDate(fullDate)
                     .acceptedBookings(acceptedCount)
                     .completedBookings(completedCount)
@@ -630,6 +640,47 @@ public class BookingServiceImpl implements BookingService {
 
         return chartData;
     }
+//    @Override
+//    public List<BookingChartResponse> getWeeklyBookingChart(UserDetails userDetails) {
+//        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+//                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+//
+//        // Get the last 7 days
+//        List<BookingChartResponse> chartData = new ArrayList<>();
+//        LocalDate today = LocalDate.now();
+//
+//        for (int i = 6; i >= 0; i--) {
+//            LocalDate date = today.minusDays(i);
+//            LocalDateTime startOfDay = date.atStartOfDay();
+//            LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+//
+//            // Get counts for each status on this date
+//            long acceptedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+//                    providerProfile.getId(), BookingStatus.ACCEPTED, startOfDay, endOfDay);
+//
+//            long completedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+//                    providerProfile.getId(), BookingStatus.COMPLETED, startOfDay, endOfDay);
+//
+//            long rejectedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+//                    providerProfile.getId(), BookingStatus.DECLINED, startOfDay, endOfDay);
+//
+//            // Format the date for display
+//            String dayName = date.format(DateTimeFormatter.ofPattern("EEE")); // Mon, Tue, etc.
+//            String fullDate = date.format(DateTimeFormatter.ofPattern("MMM d")); // Jan 15
+//
+//            BookingChartResponse chartResponse = BookingChartResponse.builder()
+//                    .date(dayName)
+//                    .fullDate(fullDate)
+//                    .acceptedBookings(acceptedCount)
+//                    .completedBookings(completedCount)
+//                    .rejectedBookings(rejectedCount)
+//                    .build();
+//
+//            chartData.add(chartResponse);
+//        }
+//
+//        return chartData;
+//    }
 
     // Add this method to get rejected jobs count for dashboard metrics
     @Override

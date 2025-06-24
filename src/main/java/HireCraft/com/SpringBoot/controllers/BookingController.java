@@ -65,10 +65,10 @@ public class BookingController {
         return ResponseEntity.ok(metrics);
     }
 
-    @GetMapping("/provider/chart/weekly")
+    @GetMapping("/provider/chart/monthly")
     @PreAuthorize("hasRole('ROLE_PROVIDER')")
-    public ResponseEntity<List<BookingChartResponse>> getWeeklyBookingChart(@AuthenticationPrincipal UserDetails userDetails) {
-            List<BookingChartResponse> chartData = bookingService.getWeeklyBookingChart(userDetails);
+    public ResponseEntity<List<BookingChartResponse>> getMonthlyBookingChart(@AuthenticationPrincipal UserDetails userDetails) {
+            List<BookingChartResponse> chartData = bookingService.getMonthlyBookingChart(userDetails);
             return ResponseEntity.ok(chartData);
     }
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingChartResponse {
-    private String date;           // Day name: "Mon", "Tue", etc.
+    private String month;           // Day name: "Mon", "Tue", etc.
     private String fullDate;       // Full date: "Jan 15", "Jan 16", etc.
     private long acceptedBookings;
     private long completedBookings;

@@ -29,10 +29,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status IN ('ACCEPTED', 'COMPLETED', 'CANCELLED')")
     long countAcceptedJobsForProvider(@Param("providerId") Long providerId);
 
-    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status = :status AND b.createdAt BETWEEN :startDate AND :endDate")
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status IN :statuses AND b.createdAt BETWEEN :startDate AND :endDate")
     long countBookingsByProviderAndStatusAndDateRange(
             @Param("providerId") Long providerId,
-            @Param("status") BookingStatus status,
+            @Param("statuses") List<BookingStatus> statuses,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
     );
