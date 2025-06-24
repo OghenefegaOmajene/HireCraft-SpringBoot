@@ -15,6 +15,7 @@ public class ProviderDashboardMetricsResponse {
     private long newBookingRequestsToday;
     private long completedJobs;
     private long acceptedJobs;
+    private long rejectedJobs;
     private long totalReviews;
     private double averageRating;
     private double dailyEarnings; // Placeholder for now, you'll need to implement this calculation

@@ -256,6 +256,7 @@ package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
+import HireCraft.com.SpringBoot.dtos.response.BookingChartResponse;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
@@ -282,6 +283,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -562,6 +565,7 @@ public class BookingServiceImpl implements BookingService {
         long newBookingRequestsToday = getNewBookingRequestsCountToday(userDetails); // Re-use existing method
         long completedJobs = getCompletedJobsCountForProvider(userDetails); // Re-use existing method
         long acceptedJobs = getAcceptedJobsCountForProvider(userDetails); // Re-use existing method
+        long rejectedJobs = getRejectedJobsCountForProvider(userDetails);
         long totalReviews = reviewService.getReviewCountForProvider(userDetails); // Use ReviewService for reviews
 
         // Get average rating directly from ServiceProviderProfile
@@ -576,10 +580,63 @@ public class BookingServiceImpl implements BookingService {
                 .newBookingRequestsToday(newBookingRequestsToday)
                 .completedJobs(completedJobs)
                 .acceptedJobs(acceptedJobs)
+                .rejectedJobs(rejectedJobs)
                 .totalReviews(totalReviews)
                 .averageRating(averageRating)
                 .dailyEarnings(dailyEarnings)
                 .unreadMessages(unreadMessages)
                 .build();
+    }
+
+
+    @Override
+    public List<BookingChartResponse> getWeeklyBookingChart(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        // Get the last 7 days
+        List<BookingChartResponse> chartData = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+
+            // Get counts for each status on this date
+            long acceptedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+                    providerProfile.getId(), BookingStatus.ACCEPTED, startOfDay, endOfDay);
+
+            long completedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+                    providerProfile.getId(), BookingStatus.COMPLETED, startOfDay, endOfDay);
+
+            long rejectedCount = bookingRepository.countBookingsByProviderAndStatusAndDateRange(
+                    providerProfile.getId(), BookingStatus.DECLINED, startOfDay, endOfDay);
+
+            // Format the date for display
+            String dayName = date.format(DateTimeFormatter.ofPattern("EEE")); // Mon, Tue, etc.
+            String fullDate = date.format(DateTimeFormatter.ofPattern("MMM d")); // Jan 15
+
+            BookingChartResponse chartResponse = BookingChartResponse.builder()
+                    .date(dayName)
+                    .fullDate(fullDate)
+                    .acceptedBookings(acceptedCount)
+                    .completedBookings(completedCount)
+                    .rejectedBookings(rejectedCount)
+                    .build();
+
+            chartData.add(chartResponse);
+        }
+
+        return chartData;
+    }
+
+    // Add this method to get rejected jobs count for dashboard metrics
+    @Override
+    public long getRejectedJobsCountForProvider(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        return bookingRepository.countRejectedJobsForProvider(providerProfile.getId());
     }
 }

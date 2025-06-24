@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.services;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
+import HireCraft.com.SpringBoot.dtos.response.BookingChartResponse;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
@@ -20,4 +21,7 @@ public interface BookingService {
     long getAcceptedJobsCountForProvider(UserDetails userDetails);
 
     ProviderDashboardMetricsResponse getProviderDashboardMetrics(UserDetails userDetails);
+
+    List<BookingChartResponse> getWeeklyBookingChart(UserDetails userDetails);
+    long getRejectedJobsCountForProvider(UserDetails userDetails);
 }

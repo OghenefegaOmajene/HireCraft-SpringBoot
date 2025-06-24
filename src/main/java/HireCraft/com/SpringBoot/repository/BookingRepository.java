@@ -26,8 +26,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     long countCompletedJobsForProvider(@Param("providerId") Long providerId);
 
     // --- NEW METHOD FOR COMPLETION RATE ---
-    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status = 'ACCEPTED'")
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status IN ('ACCEPTED', 'COMPLETED', 'CANCELLED')")
     long countAcceptedJobsForProvider(@Param("providerId") Long providerId);
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status = :status AND b.createdAt BETWEEN :startDate AND :endDate")
+    long countBookingsByProviderAndStatusAndDateRange(
+            @Param("providerId") Long providerId,
+            @Param("status") BookingStatus status,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.providerProfile.id = :providerId AND b.status = 'DECLINED'")
+    long countRejectedJobsForProvider(@Param("providerId") Long providerId);
     // You might also want to get all pending bookings for display if needed
     List<Booking> findByProviderProfile_IdAndStatus(Long providerId, BookingStatus status);
 

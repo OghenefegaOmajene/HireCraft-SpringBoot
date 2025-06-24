@@ -2,12 +2,14 @@ package HireCraft.com.SpringBoot.controllers;
 
 import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
+import HireCraft.com.SpringBoot.dtos.response.BookingChartResponse;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
 import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import HireCraft.com.SpringBoot.services.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -61,5 +63,12 @@ public class BookingController {
     public ResponseEntity<ProviderDashboardMetricsResponse> getProviderDashboardMetrics(@AuthenticationPrincipal UserDetails userDetails) {
         ProviderDashboardMetricsResponse metrics = bookingService.getProviderDashboardMetrics(userDetails);
         return ResponseEntity.ok(metrics);
+    }
+
+    @GetMapping("/provider/chart/weekly")
+    @PreAuthorize("hasRole('ROLE_PROVIDER')")
+    public ResponseEntity<List<BookingChartResponse>> getWeeklyBookingChart(@AuthenticationPrincipal UserDetails userDetails) {
+            List<BookingChartResponse> chartData = bookingService.getWeeklyBookingChart(userDetails);
+            return ResponseEntity.ok(chartData);
     }
 }
