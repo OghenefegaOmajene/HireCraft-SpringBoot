@@ -22,5 +22,4 @@ public class NotificationResponse {
     private String timeAgo;
     private Long referenceId;
     private ReferenceType referenceType;
-    private String metadata;
 }

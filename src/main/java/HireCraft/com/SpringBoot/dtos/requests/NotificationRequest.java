@@ -17,5 +17,25 @@ public class NotificationRequest  {
     private Long userId;
     private Long referenceId;
     private ReferenceType referenceType;
-    private String metadata;
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public Long getReferenceId() {
+        return referenceId;
+    }
+
+    public ReferenceType getReferenceType() {
+        return referenceType;
+    }
 }

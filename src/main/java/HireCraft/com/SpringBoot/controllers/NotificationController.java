@@ -20,33 +20,37 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
     // Get all notifications for current user
     @GetMapping
-    public ResponseEntity<List<NotificationDto>> getUserNotifications(
+    public ResponseEntity<List<NotificationResponse>> getUserNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
         // You'll need to extract user ID from UserDetails - adjust based on your implementation
         Long userId = extractUserIdFromUserDetails(userDetails);
-        List<NotificationDto> notifications = notificationService.getUserNotifications(userId);
+        List<NotificationResponse> notifications = notificationService.getUserNotifications(userId);
         return ResponseEntity.ok(notifications);
     }
 
     // Get notifications with pagination
     @GetMapping("/paginated")
-    public ResponseEntity<Page<NotificationDto>> getUserNotificationsPaginated(
+    public ResponseEntity<Page<NotificationResponse>> getUserNotificationsPaginated(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Long userId = extractUserIdFromUserDetails(userDetails);
-        Page<NotificationDto> notifications = notificationService.getUserNotifications(userId, page, size);
+        Page<NotificationResponse> notifications = notificationService.getUserNotifications(userId, page, size);
         return ResponseEntity.ok(notifications);
     }
 
     // Get unread notifications
     @GetMapping("/unread")
-    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(
+    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = extractUserIdFromUserDetails(userDetails);
-        List<NotificationDto> notifications = notificationService.getUnreadNotifications(userId);
+        List<NotificationResponse> notifications = notificationService.getUnreadNotifications(userId);
         return ResponseEntity.ok(notifications);
     }
 
@@ -90,9 +94,9 @@ public class NotificationController {
 
     // Create notification (for testing or admin purposes)
     @PostMapping
-    public ResponseEntity<NotificationDto> createNotification(
-            @RequestBody CreateNotificationRequest request) {
-        NotificationDto notification = notificationService.createNotification(request);
+    public ResponseEntity<NotificationResponse> createNotification(
+            @RequestBody NotificationRequest request) {
+        NotificationResponse notification = notificationService.createNotification(request);
         return ResponseEntity.ok(notification);
     }
 

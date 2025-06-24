@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     private final NotificationRepository notificationRepository;
 
@@ -32,10 +35,8 @@ public class NotificationService {
                 .message(request.getMessage())
                 .type(request.getType())
                 .userId(request.getUserId())
-                .priority(request.getPriority())
                 .referenceId(request.getReferenceId())
                 .referenceType(request.getReferenceType())
-                .metadata(request.getMetadata())
                 .isRead(false)
                 .build();
 
@@ -148,10 +149,8 @@ public class NotificationService {
                 .isRead(notification.getIsRead())
                 .createdAt(notification.getCreatedAt())
                 .timeAgo(calculateTimeAgo(notification.getCreatedAt()))
-                .priority(notification.getPriority())
                 .referenceId(notification.getReferenceId())
                 .referenceType(notification.getReferenceType())
-                .metadata(notification.getMetadata())
                 .build();
     }
 
