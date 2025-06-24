@@ -258,6 +258,7 @@ import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
+import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import HireCraft.com.SpringBoot.enums.BookingStatus;
 import HireCraft.com.SpringBoot.exceptions.InvalidBookingStatusTransitionException;
 import HireCraft.com.SpringBoot.exceptions.UnauthorizedBookingActionException;
@@ -273,6 +274,7 @@ import HireCraft.com.SpringBoot.services.BookingService;
 
 import HireCraft.com.SpringBoot.models.Message;
 import HireCraft.com.SpringBoot.repository.MessageRepository;
+import HireCraft.com.SpringBoot.services.ReviewService;
 import HireCraft.com.SpringBoot.utils.EncryptorUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -297,14 +299,16 @@ public class BookingServiceImpl implements BookingService {
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
     private final MessageRepository messageRepository;
     private final EncryptorUtil encryptorUtil;
+    private final ReviewService reviewService;
 
-    public BookingServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, MessageRepository messageRepository, EncryptorUtil encryptorUtil) {
+    public BookingServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, MessageRepository messageRepository, EncryptorUtil encryptorUtil, ReviewService reviewService) {
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.clientProfileRepository = clientProfileRepository;
         this.serviceProviderProfileRepository = serviceProviderProfileRepository;
         this.messageRepository = messageRepository;
         this.encryptorUtil = encryptorUtil;
+        this.reviewService = reviewService;
     }
 
     @Override
@@ -549,4 +553,33 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.countAcceptedJobsForProvider(providerProfile.getId());
     }
 
+    @Override
+    public ProviderDashboardMetricsResponse getProviderDashboardMetrics(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        // Fetch individual counts
+        long newBookingRequestsToday = getNewBookingRequestsCountToday(userDetails); // Re-use existing method
+        long completedJobs = getCompletedJobsCountForProvider(userDetails); // Re-use existing method
+        long acceptedJobs = getAcceptedJobsCountForProvider(userDetails); // Re-use existing method
+        long totalReviews = reviewService.getReviewCountForProvider(userDetails); // Use ReviewService for reviews
+
+        // Get average rating directly from ServiceProviderProfile
+        double averageRating = providerProfile.getAverageRating(); // Assuming this is updated by your review service
+
+        // TODO: Implement actual logic for daily earnings and unread messages
+        // For now, they will be 0 or mock data
+        double dailyEarnings = 0.0;
+        long unreadMessages = 0; // You'd need a MessageRepository method to count unread messages for this provider
+
+        return ProviderDashboardMetricsResponse.builder()
+                .newBookingRequestsToday(newBookingRequestsToday)
+                .completedJobs(completedJobs)
+                .acceptedJobs(acceptedJobs)
+                .totalReviews(totalReviews)
+                .averageRating(averageRating)
+                .dailyEarnings(dailyEarnings)
+                .unreadMessages(unreadMessages)
+                .build();
+    }
 }

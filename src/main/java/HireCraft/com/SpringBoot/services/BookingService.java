@@ -4,6 +4,7 @@ import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
+import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface BookingService {
     long getNewBookingRequestsCountToday(UserDetails userDetails);
     long getCompletedJobsCountForProvider(UserDetails userDetails);
     long getAcceptedJobsCountForProvider(UserDetails userDetails);
+
+    ProviderDashboardMetricsResponse getProviderDashboardMetrics(UserDetails userDetails);
 }

@@ -4,6 +4,7 @@ import HireCraft.com.SpringBoot.dtos.requests.BookingRequest;
 import HireCraft.com.SpringBoot.dtos.requests.UpdateBookingStatusRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ClientBookingViewResponse;
+import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import HireCraft.com.SpringBoot.services.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,25 +56,10 @@ public class BookingController {
         return ResponseEntity.ok(updatedBooking);
     }
 
-    @GetMapping("/provider/dashboard/new-requests-today")
-    @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
-    public ResponseEntity<Long> getNewBookingRequestsToday(@AuthenticationPrincipal UserDetails userDetails) {
-        long count = bookingService.getNewBookingRequestsCountToday(userDetails);
-        return ResponseEntity.ok(count);
-    }
-
-    // New endpoint for completed jobs count
-    @GetMapping("/provider/dashboard/completed-jobs")
-    @PreAuthorize("hasAuthority('UPDATE_BOOKING_REQUEST_STATUS')")
-    public ResponseEntity<Long> getCompletedJobsCount(@AuthenticationPrincipal UserDetails userDetails) {
-        long count = bookingService.getCompletedJobsCountForProvider(userDetails);
-        return ResponseEntity.ok(count);
-    }
-
-    @GetMapping("/provider/dashboard/accepted-jobs")
-    @PreAuthorize("hasRole('ROLE_PROVIDER')") // Only providers should access this
-    public ResponseEntity<Long> getAcceptedJobsCount(@AuthenticationPrincipal UserDetails userDetails) {
-        long count = bookingService.getAcceptedJobsCountForProvider(userDetails);
-        return ResponseEntity.ok(count);
+    @GetMapping("/provider/dashboard/metrics")
+    @PreAuthorize("hasRole('ROLE_PROVIDER')") // Secure this endpoint
+    public ResponseEntity<ProviderDashboardMetricsResponse> getProviderDashboardMetrics(@AuthenticationPrincipal UserDetails userDetails) {
+        ProviderDashboardMetricsResponse metrics = bookingService.getProviderDashboardMetrics(userDetails);
+        return ResponseEntity.ok(metrics);
     }
 }
