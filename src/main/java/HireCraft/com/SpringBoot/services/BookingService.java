@@ -16,4 +16,5 @@ public interface BookingService {
 
     long getNewBookingRequestsCountToday(UserDetails userDetails);
     long getCompletedJobsCountForProvider(UserDetails userDetails);
+    long getAcceptedJobsCountForProvider(UserDetails userDetails);
 }

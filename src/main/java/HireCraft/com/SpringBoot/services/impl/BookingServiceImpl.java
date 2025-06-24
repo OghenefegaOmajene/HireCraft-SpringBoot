@@ -539,4 +539,14 @@ public class BookingServiceImpl implements BookingService {
 
         return bookingRepository.countCompletedJobsForProvider(providerProfile.getId());
     }
+
+    // --- NEW METHOD IMPLEMENTATION FOR COMPLETION RATE ---
+    @Override
+    public long getAcceptedJobsCountForProvider(UserDetails userDetails) {
+        ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Provider profile not found"));
+
+        return bookingRepository.countAcceptedJobsForProvider(providerProfile.getId());
+    }
+
 }

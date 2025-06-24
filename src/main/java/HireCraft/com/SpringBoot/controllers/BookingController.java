@@ -69,4 +69,11 @@ public class BookingController {
         long count = bookingService.getCompletedJobsCountForProvider(userDetails);
         return ResponseEntity.ok(count);
     }
+
+    @GetMapping("/provider/dashboard/accepted-jobs")
+    @PreAuthorize("hasRole('ROLE_PROVIDER')") // Only providers should access this
+    public ResponseEntity<Long> getAcceptedJobsCount(@AuthenticationPrincipal UserDetails userDetails) {
+        long count = bookingService.getAcceptedJobsCountForProvider(userDetails);
+        return ResponseEntity.ok(count);
+    }
 }
