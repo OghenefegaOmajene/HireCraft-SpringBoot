@@ -70,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // Create a notification for the provider
         NotificationRequest notificationRequest = NotificationRequest.builder()
-                .message(String.format("New %d-star review received from %s.",
+                .message(String.format("New %.1f-star review received from %s.",
                         savedReview.getRatingNo(),
                         clientProfile.getUser().getFirstName() + " " + clientProfile.getUser().getLastName()))
                 .type(NotificationType.REVIEW_RECEIVED)
@@ -78,8 +78,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .referenceId(savedReview.getId()) // Reference the new review's ID
                 .referenceType(ReferenceType.REVIEW) // Indicate reference type is REVIEW
                 .build();
-
         notificationService.createNotification(notificationRequest);
+
         return ReviewResponse.builder()
                 .rating(savedReview.getRatingNo())
                 .reviewTxt(savedReview.getReviewTxt())

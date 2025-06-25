@@ -3,6 +3,7 @@ package HireCraft.com.SpringBoot.services.impl;
 import HireCraft.com.SpringBoot.dtos.requests.ForgetPasswordRequest;
 import HireCraft.com.SpringBoot.dtos.requests.RegisterRequest;
 import HireCraft.com.SpringBoot.dtos.requests.ResetPasswordRequest;
+import HireCraft.com.SpringBoot.dtos.response.ChangePasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ForgotPasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ResetPasswordResponse;
 import HireCraft.com.SpringBoot.exceptions.InvalidResetTokenException;
@@ -15,6 +16,7 @@ import HireCraft.com.SpringBoot.dtos.response.RegisterResponse;
 import HireCraft.com.SpringBoot.enums.UserStatus;
 import HireCraft.com.SpringBoot.security.jwt.JwtTokenProvider;
 import HireCraft.com.SpringBoot.utils.PasswordUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -45,6 +47,18 @@ public class AuthServiceImpl implements AuthService {
     private static final int TOKEN_EXPIRY_MINUTES = 15;
     private static final SecureRandom RANDOM = new SecureRandom();
     private final JavaMailSender mailSender;
+
+    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, PasswordResetTokenRepository tokenRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, ClientProfileRepository clientProfileRepository, JavaMailSender mailSender) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenRepository = tokenRepository;
+        this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+        this.clientProfileRepository = clientProfileRepository;
+        this.mailSender = mailSender;
+    }
+
     @Value("${cloudinary.default-profile-url}")
     private String defaultProfileImageUrl;
 
@@ -182,6 +196,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional // Ensures token and user update are atomic
     public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
         // 1. Validate reset token
         PasswordResetToken prt = tokenRepository
@@ -193,18 +208,55 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidResetTokenException("Reset code expired or already used.");
         }
 
+        // Check if new password meets criteria (already done by @Size in DTO, but can add extra checks here if needed)
+        // For example, if new password is same as old password
+        User user = prt.getUser();
+        if (PasswordUtil.matches(request.getNewPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("New password cannot be the same as the old password.");
+        }
+
         // 2. Mark token used
         prt.setUsed(true);
         tokenRepository.save(prt);
 
         // 3. Update user password
-        User user = prt.getUser();
         user.setPasswordHash(PasswordUtil.encode(request.getNewPassword()));
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
         // 4. Return success
         return new ResetPasswordResponse("Password has been reset successfully.");
+    }
+
+    @Override
+    @Transactional // Ensure password update is atomic
+    public ChangePasswordResponse changePassword(ChangePasswordRequest request, UserDetails userDetails) {
+        // 1. Get authenticated user
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found.")); // Should not happen if @PreAuthorize is used
+
+        // 2. Verify old password
+        if (!PasswordUtil.matches(request.getOldPassword(), user.getPasswordHash())) {
+            throw new OldPasswordMismatchException("Old password does not match.");
+        }
+
+        // 3. Check if new password matches confirm new password
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new PasswordMismatchException("New password and confirm new password do not match.");
+        }
+
+        // 4. Prevent changing to the same password (optional but recommended)
+        if (PasswordUtil.matches(request.getNewPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("New password cannot be the same as the old password.");
+        }
+
+        // 5. Update user password
+        user.setPasswordHash(PasswordUtil.encode(request.getNewPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        // 6. Return success
+        return new ChangePasswordResponse("Password changed successfully.");
     }
 
 }

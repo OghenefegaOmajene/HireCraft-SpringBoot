@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ForgotPasswordResponse {
+public class ChangePasswordResponse {
     private String message;
 }
