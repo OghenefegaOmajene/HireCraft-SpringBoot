@@ -130,27 +130,30 @@ public class NotificationServiceImpl implements NotificationService { // Impleme
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets the count of unread notifications for a specific user.
-     *
-     * @param userId The ID of the user.
-     * @return The total count of unread notifications.
-     */
     @Override
-    public long getUnreadCount(Long userId) {
+    public long getUnreadCount(UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + userDetails.getUsername()));
+
+        Long userId = user.getId();
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
     /**
      * Marks a single notification as read.
+     * Now accepts UserDetails and extracts userId internally.
      *
      * @param notificationId The ID of the notification to mark.
-     * @param userId The ID of the user associated with the notification (for security/validation).
+     * @param userDetails The UserDetails object of the authenticated user.
      * @return true if the notification was updated, false otherwise.
      */
     @Override
     @Transactional
-    public boolean markAsRead(Long notificationId, Long userId) {
+    public boolean markAsRead(Long notificationId, UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + userDetails.getUsername()));
+
+        Long userId = user.getId();
         // Execute the custom update query in the repository
         int updated = notificationRepository.markAsRead(notificationId, userId);
         return updated > 0; // Return true if at least one record was updated

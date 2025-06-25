@@ -1,18 +1,23 @@
 package HireCraft.com.SpringBoot.services.impl;
 
+import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
+import HireCraft.com.SpringBoot.enums.NotificationType;
+import HireCraft.com.SpringBoot.enums.ReferenceType;
 import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.ReviewRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
+import HireCraft.com.SpringBoot.services.NotificationService;
 import HireCraft.com.SpringBoot.services.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,12 +30,14 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
+    private final NotificationService notificationService;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, NotificationService notificationService) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.clientProfileRepository = clientProfileRepository;
         this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -56,17 +63,32 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
 
         // Save and return response
-        Review saved = reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
         updateServiceProviderAverageRating(serviceProviderProfile);
 
+        Long providerUserId = serviceProviderProfile.getUser().getId();
+
+        // Create a notification for the provider
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .message(String.format("New %d-star review received from %s.",
+                        savedReview.getRatingNo(),
+                        clientProfile.getUser().getFirstName() + " " + clientProfile.getUser().getLastName()))
+                .type(NotificationType.REVIEW_RECEIVED)
+                .userId(providerUserId)
+                .referenceId(savedReview.getId()) // Reference the new review's ID
+                .referenceType(ReferenceType.REVIEW) // Indicate reference type is REVIEW
+                .build();
+
+        notificationService.createNotification(notificationRequest);
         return ReviewResponse.builder()
-                .rating(saved.getRatingNo())
-                .reviewTxt(saved.getReviewTxt())
+                .rating(savedReview.getRatingNo())
+                .reviewTxt(savedReview.getReviewTxt())
                 .clientFullName(user.getFirstName() + " " + user.getLastName())
-                .createdAt(saved.getCreatedAt())
+                .createdAt(savedReview.getCreatedAt())
                 .build();
     }
 
+    @Transactional
     private void updateServiceProviderAverageRating(ServiceProviderProfile serviceProviderProfile) {
         // Fetch all reviews for this specific service provider
         List<Review> reviews = reviewRepository.findByProviderProfile_Id(serviceProviderProfile.getId());

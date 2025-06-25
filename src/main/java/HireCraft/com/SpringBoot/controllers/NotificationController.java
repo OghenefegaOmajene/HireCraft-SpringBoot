@@ -51,22 +51,22 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
-    // Get unread count
     @GetMapping("/unread/count")
-    public ResponseEntity<Long> getUnreadCount(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserIdFromUserDetails(userDetails);
-        long count = notificationService.getUnreadCount(userId);
+    @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Long> getUnreadCount( @AuthenticationPrincipal UserDetails userDetails) {
+        // Directly pass userDetails to the service, as it now handles extraction
+        long count = notificationService.getUnreadCount(userDetails);
         return ResponseEntity.ok(count);
     }
 
     // Mark notification as read
     @PutMapping("/{notificationId}/read")
+    @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ROLE_CLIENT')")
     public ResponseEntity<Void> markAsRead(
             @PathVariable Long notificationId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserIdFromUserDetails(userDetails);
-        boolean updated = notificationService.markAsRead(notificationId, userId);
+        // Directly pass userDetails to the service, as it now handles extraction
+        boolean updated = notificationService.markAsRead(notificationId, userDetails);
         return updated ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
