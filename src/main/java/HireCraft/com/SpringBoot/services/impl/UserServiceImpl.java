@@ -1,6 +1,7 @@
 package HireCraft.com.SpringBoot.services.impl;
 
 import HireCraft.com.SpringBoot.dtos.requests.UnifiedUserProfileUpdateRequest;
+import HireCraft.com.SpringBoot.dtos.response.ProviderDashboardMetricsResponse;
 import HireCraft.com.SpringBoot.enums.RoleName;
 import HireCraft.com.SpringBoot.exceptions.InvalidCvFileException;
 import HireCraft.com.SpringBoot.models.ClientProfile;
@@ -49,12 +50,14 @@ public class UserServiceImpl implements UserService {
     private final CloudinaryService cloudinaryService;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
+    private final ProviderDashboardMetricsResponse providerDashboardMetricsResponse;
 
-    public UserServiceImpl(UserRepository userRepository, CloudinaryService cloudinaryService, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository) {
+    public UserServiceImpl(UserRepository userRepository, CloudinaryService cloudinaryService, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, ProviderDashboardMetricsResponse providerDashboardMetricsResponse) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
         this.clientProfileRepository = clientProfileRepository;
         this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+        this.providerDashboardMetricsResponse = providerDashboardMetricsResponse;
     }
 
     @Override
@@ -326,6 +329,7 @@ public class UserServiceImpl implements UserService {
         Long providerId = null;
         String occupation = null;
         String hourlyRate=null;
+        Long jobsDone = null;
         String providerBio = null;
         Set<String> skills = null;
         String cvUrl = null;
@@ -369,6 +373,7 @@ public class UserServiceImpl implements UserService {
             providerBio = providerProfile.getBio();
             skills = providerProfile.getSkills();
             cvUrl = providerProfile.getCvUrl();
+            jobsDone = providerDashboardMetricsResponse.getCompletedJobs();
         } else if (user.getClientProfile() != null) {
             ClientProfile clientProfile = user.getClientProfile();
             clientId = clientProfile.getId();
@@ -395,6 +400,7 @@ public class UserServiceImpl implements UserService {
                 averageRating,
                 occupation,
                 hourlyRate,
+                jobsDone,
                 providerBio,
                 skills,
                 cvUrl,

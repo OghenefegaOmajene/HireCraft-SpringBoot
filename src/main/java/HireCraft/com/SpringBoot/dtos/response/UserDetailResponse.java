@@ -27,6 +27,7 @@ public class UserDetailResponse {
     private double averageRating;
     private String occupation;
     private String hourlyRate;
+    private long jobsDone;
     private String providerBio;
     private Set<String> skills;
     private String cvUrl;
@@ -42,7 +43,7 @@ public class UserDetailResponse {
     private String profilePictureUrl;
 
 
-    public UserDetailResponse(Long id, Long providerId, Long clientId, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, String providerBio, Set<String> skills, String cvUrl, String companyName, String position, String profession, String companyWebsiteUrl, String clientBio, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
+    public UserDetailResponse(Long id, Long providerId, Long clientId, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, Long jobsDone, String providerBio, Set<String> skills, String cvUrl, String companyName, String position, String profession, String companyWebsiteUrl, String clientBio, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
         this.id = id;
         this.providerId = providerId;
         this.clientId = clientId;
@@ -58,6 +59,7 @@ public class UserDetailResponse {
         this.averageRating = averageRating;
         this.occupation = occupation;
         this.hourlyRate = hourlyRate;
+        this.jobsDone = jobsDone;
         this.providerBio = providerBio;
         this.skills = skills;
         this.cvUrl = cvUrl;

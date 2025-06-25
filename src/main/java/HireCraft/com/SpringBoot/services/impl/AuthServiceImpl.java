@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashSet;
 
 @Service
-@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -186,12 +185,19 @@ public class AuthServiceImpl implements AuthService {
             msg.setSubject("Your Password Reset Code");
             msg.setText("Your password reset code is: " + code
                     + "\nThis code will expire in " + TOKEN_EXPIRY_MINUTES + " minutes.");
-            mailSender.send(msg);
+            try {
+                mailSender.send(msg); // Use JavaMailSender
+            } catch (Exception e) {
+                // Log the exception. For forgot password, often best to return generic success
+                // message even if email fails to prevent user enumeration.
+                System.err.println("Failed to send password reset email via Gmail SMTP: " + e.getMessage());
+                // Optionally: throw new RuntimeException("Email sending failed.", e);
+            }
         });
 
         // 5. Always return success message to prevent account enumeration
         return new ForgotPasswordResponse(
-                "If that email is registered, you will receive a reset code shortly.";
+                "If that email is registered, you will receive a reset code shortly."
         );
     }
 

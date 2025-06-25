@@ -20,7 +20,7 @@ public class ResetPasswordRequest {
     @NotBlank @Size(min = 6, max = 6)
     private String token;      // the 6-digit code
 
-    @NotBlank @Size(min = 8)
+    @NotBlank @Size(min = 4)
     private String newPassword;
 
     public @Email @NotBlank String getEmail() {
@@ -31,7 +31,7 @@ public class ResetPasswordRequest {
         return token;
     }
 
-    public @NotBlank @Size(min = 8) String getNewPassword() {
+    public @NotBlank @Size(min = 4) String getNewPassword() {
         return newPassword;
     }
 }

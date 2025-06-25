@@ -20,4 +20,12 @@ public class ProviderDashboardMetricsResponse {
     private double averageRating;
     private double dailyEarnings; // Placeholder for now, you'll need to implement this calculation
     private long unreadMessages;  // Placeholder for now, you'll need to implement this calculation
+
+    public ProviderDashboardMetricsResponse(long completedJobs) {
+        this.completedJobs = completedJobs;
+    }
+
+    public long getCompletedJobs() {
+        return completedJobs;
+    }
 }

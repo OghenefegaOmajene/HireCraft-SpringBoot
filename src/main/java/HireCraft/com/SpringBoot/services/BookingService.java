@@ -19,7 +19,7 @@ public interface BookingService {
     long getNewBookingRequestsCountToday(UserDetails userDetails);
     long getCompletedJobsCountForProvider(UserDetails userDetails);
     long getAcceptedJobsCountForProvider(UserDetails userDetails);
-
+    long countCompletedJobsForProvider(Long providerId);
     ProviderDashboardMetricsResponse getProviderDashboardMetrics(UserDetails userDetails);
 
     List<BookingChartResponse> getMonthlyBookingChart(UserDetails userDetails);

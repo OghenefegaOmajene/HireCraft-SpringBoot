@@ -569,6 +569,11 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.countCompletedJobsForProvider(providerProfile.getId());
     }
 
+    @Override
+    public long countCompletedJobsForProvider(Long providerId) {
+        return bookingRepository.countCompletedJobsForProvider(providerId);
+    }
+
     // --- NEW METHOD IMPLEMENTATION FOR COMPLETION RATE ---
     @Override
     public long getAcceptedJobsCountForProvider(UserDetails userDetails) {

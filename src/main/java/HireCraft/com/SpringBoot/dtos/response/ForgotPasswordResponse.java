@@ -6,11 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class ForgotPasswordResponse {
     private String message;
+
+    public ForgotPasswordResponse(String message) {
+        this.message = message;
+    }
 
     public void setMessage(String message) {
         this.message = message;
