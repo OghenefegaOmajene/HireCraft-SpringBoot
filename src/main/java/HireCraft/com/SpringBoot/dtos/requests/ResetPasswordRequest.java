@@ -22,4 +22,16 @@ public class ResetPasswordRequest {
 
     @NotBlank @Size(min = 8)
     private String newPassword;
+
+    public @Email @NotBlank String getEmail() {
+        return email;
+    }
+
+    public @NotBlank @Size(min = 6, max = 6) String getToken() {
+        return token;
+    }
+
+    public @NotBlank @Size(min = 8) String getNewPassword() {
+        return newPassword;
+    }
 }

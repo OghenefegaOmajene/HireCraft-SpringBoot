@@ -11,4 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChangePasswordResponse {
     private String message;
+
+    public ChangePasswordResponse(String message) {
+        this.message = message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

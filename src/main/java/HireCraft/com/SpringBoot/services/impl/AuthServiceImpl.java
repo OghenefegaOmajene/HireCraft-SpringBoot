@@ -1,16 +1,15 @@
 package HireCraft.com.SpringBoot.services.impl;
 
-import HireCraft.com.SpringBoot.dtos.requests.ForgetPasswordRequest;
-import HireCraft.com.SpringBoot.dtos.requests.RegisterRequest;
-import HireCraft.com.SpringBoot.dtos.requests.ResetPasswordRequest;
+import HireCraft.com.SpringBoot.dtos.requests.*;
 import HireCraft.com.SpringBoot.dtos.response.ChangePasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ForgotPasswordResponse;
 import HireCraft.com.SpringBoot.dtos.response.ResetPasswordResponse;
 import HireCraft.com.SpringBoot.exceptions.InvalidResetTokenException;
+import HireCraft.com.SpringBoot.exceptions.OldPasswordMismatchException;
+import HireCraft.com.SpringBoot.exceptions.PasswordMismatchException;
 import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.repository.*;
 import HireCraft.com.SpringBoot.services.AuthService;
-import HireCraft.com.SpringBoot.dtos.requests.LoginRequest;
 import HireCraft.com.SpringBoot.dtos.response.LoginResponse;
 import HireCraft.com.SpringBoot.dtos.response.RegisterResponse;
 import HireCraft.com.SpringBoot.enums.UserStatus;
@@ -25,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import HireCraft.com.SpringBoot.exceptions.UserAlreadyExistsException;
 
@@ -191,7 +191,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 5. Always return success message to prevent account enumeration
         return new ForgotPasswordResponse(
-                "If that email is registered, you will receive a reset code shortly."
+                "If that email is registered, you will receive a reset code shortly.";
         );
     }
 

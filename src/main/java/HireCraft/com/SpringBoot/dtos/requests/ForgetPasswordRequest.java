@@ -15,4 +15,8 @@ public class ForgetPasswordRequest {
     @Email
     @NotBlank
     private String email;
+
+    public @Email @NotBlank String getEmail() {
+        return email;
+    }
 }

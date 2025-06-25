@@ -13,6 +13,8 @@ public interface AuthService {
 
     LoginResponse login(LoginRequest request);
 
+    ForgotPasswordResponse forgotPassword(ForgetPasswordRequest request);
+
     ResetPasswordResponse resetPassword(ResetPasswordRequest request);
 
     ChangePasswordResponse changePassword(ChangePasswordRequest request, UserDetails userDetails);
