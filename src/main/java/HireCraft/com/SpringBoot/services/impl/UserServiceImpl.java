@@ -10,6 +10,7 @@ import HireCraft.com.SpringBoot.models.ServiceProviderProfile;
 import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
 import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
 import HireCraft.com.SpringBoot.repository.UserRepository;
+import HireCraft.com.SpringBoot.services.BookingService;
 import HireCraft.com.SpringBoot.services.CloudinaryService;
 import HireCraft.com.SpringBoot.services.UserService;
 import HireCraft.com.SpringBoot.dtos.response.UserDetailResponse;
@@ -50,14 +51,14 @@ public class UserServiceImpl implements UserService {
     private final CloudinaryService cloudinaryService;
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
-    private final ProviderDashboardMetricsResponse providerDashboardMetricsResponse;
+    private final BookingService bookingService;
 
-    public UserServiceImpl(UserRepository userRepository, CloudinaryService cloudinaryService, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, ProviderDashboardMetricsResponse providerDashboardMetricsResponse) {
+    public UserServiceImpl(UserRepository userRepository, CloudinaryService cloudinaryService, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, BookingService bookingService) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
         this.clientProfileRepository = clientProfileRepository;
         this.serviceProviderProfileRepository = serviceProviderProfileRepository;
-        this.providerDashboardMetricsResponse = providerDashboardMetricsResponse;
+        this.bookingService = bookingService;
     }
 
     @Override
@@ -373,7 +374,11 @@ public class UserServiceImpl implements UserService {
             providerBio = providerProfile.getBio();
             skills = providerProfile.getSkills();
             cvUrl = providerProfile.getCvUrl();
-            jobsDone = providerDashboardMetricsResponse.getCompletedJobs();
+            if (providerId != null) {
+                jobsDone = bookingService.countCompletedJobsForProvider(providerId); // <--- Call the method from BookingService
+            } else {
+                jobsDone = 0L; // Default if providerId is somehow null
+            }
         } else if (user.getClientProfile() != null) {
             ClientProfile clientProfile = user.getClientProfile();
             clientId = clientProfile.getId();
