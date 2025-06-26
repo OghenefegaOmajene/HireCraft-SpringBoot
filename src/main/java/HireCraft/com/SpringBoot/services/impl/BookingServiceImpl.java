@@ -529,23 +529,53 @@ public class BookingServiceImpl implements BookingService {
         return response;
     }
 
-    private String getTimeAgo(LocalDateTime timestamp){
+    private String getTimeAgo(LocalDateTime timestamp) {
         // Add a null check here to prevent NullPointerException
         if (timestamp == null) {
             return "N/A"; // Or any other suitable placeholder
         }
+
         Duration duration = Duration.between(timestamp, LocalDateTime.now());
         long seconds = duration.getSeconds();
 
-        if (seconds < 60) return seconds + " seconds ago";
+        // Handle future dates (in case of clock skew)
+        if (seconds < 0) {
+            return "just now";
+        }
+
+        // Less than 1 minute
+        if (seconds < 60) {
+            if (seconds == 0) return "just now";
+            return seconds == 1 ? "1 second ago" : seconds + " seconds ago";
+        }
+
+        // Less than 1 hour
         long minutes = seconds / 60;
-        if (minutes < 60) return minutes + " minutes ago";
+        if (minutes < 60) {
+            return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
+        }
+
+        // Less than 1 day
         long hours = minutes / 60;
-        if (hours < 24) return hours + " hours ago";
+        if (hours < 24) {
+            return hours == 1 ? "1 hour ago" : hours + " hours ago";
+        }
+
+        // Less than 30 days
         long days = hours / 24;
-        if (days < 30) return days + " days ago";
-        long months = days / 30;
-        return months + " months ago";
+        if (days < 30) {
+            return days == 1 ? "1 day ago" : days + " days ago";
+        }
+
+        // Less than 12 months
+        long months = days / 30; // Rough approximation
+        if (months < 12) {
+            return months == 1 ? "1 month ago" : months + " months ago";
+        }
+
+        // Years
+        long years = months / 12;
+        return years == 1 ? "1 year ago" : years + " years ago";
     }
 
     // New methods implementation

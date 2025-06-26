@@ -405,7 +405,7 @@ public class UserServiceImpl implements UserService {
                 averageRating,
                 occupation,
                 hourlyRate,
-                jobsDone,
+                bookingService.countCompletedJobsForProvider(providerId),
                 providerBio,
                 skills,
                 cvUrl,
