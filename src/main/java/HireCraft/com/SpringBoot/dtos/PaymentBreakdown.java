@@ -1,4 +1,4 @@
-package HireCraft.com.SpringBoot.utils;
+package HireCraft.com.SpringBoot.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

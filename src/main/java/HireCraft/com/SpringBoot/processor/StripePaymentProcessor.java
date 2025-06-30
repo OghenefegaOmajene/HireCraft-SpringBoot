@@ -1,11 +1,20 @@
-package HireCraft.com.SpringBoot.config;
+package HireCraft.com.SpringBoot.processor;
 
+import HireCraft.com.SpringBoot.dtos.response.StripePaymentResponse;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.annotation.PostConstruct;
-import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Component
 @Slf4j
-public class StripePaymentConfig {
+public class StripePaymentProcessor {
 
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
@@ -15,10 +24,10 @@ public class StripePaymentConfig {
         Stripe.apiKey = stripeSecretKey;
     }
 
-    public StripePaymentResult processPayment(String paymentMethodId,
-                                              BigDecimal totalAmount,
-                                              BigDecimal platformFee,
-                                              Long providerId) {
+    public StripePaymentResponse processPayment(String paymentMethodId,
+                                                BigDecimal totalAmount,
+                                                BigDecimal platformFee,
+                                                Long providerId) {
         try {
             // Convert to cents for Stripe
             long amountInCents = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
@@ -38,11 +47,11 @@ public class StripePaymentConfig {
 
             log.info("Stripe payment intent created: {}", intent.getId());
 
-            return new StripePaymentResult(true, intent.getId(), intent.getStatus());
+            return new StripePaymentResponse(true, intent.getId(), intent.getStatus());
 
         } catch (StripeException e) {
             log.error("Stripe payment failed", e);
-            return new StripePaymentResult(false, null, e.getMessage());
+            return new StripePaymentResponse(false, null, e.getMessage());
         }
     }
 }

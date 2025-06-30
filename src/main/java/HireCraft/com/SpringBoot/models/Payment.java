@@ -1,9 +1,13 @@
 package HireCraft.com.SpringBoot.models;
 
+import HireCraft.com.SpringBoot.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
@@ -22,7 +26,7 @@ public class Payment {
     @Column(nullable = false)
     private Long providerId;
 
-    private Long projectId; // Optional - for project-based payments
+    private Long bookingId; // Optional - for project-based payments
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount; // What client pays

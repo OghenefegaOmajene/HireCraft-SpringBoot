@@ -17,7 +17,7 @@ public class PaymentResponse {
     private Long paymentId;
     private Long clientId;
     private Long providerId;
-    private Long projectId;
+    private Long bookingId;
     private BigDecimal totalAmount;
     private BigDecimal platformFee;
     private BigDecimal providerAmount;
@@ -26,6 +26,4 @@ public class PaymentResponse {
     private String externalTransactionId;
     private String description;
     private LocalDateTime createdAt;
-
-
 }

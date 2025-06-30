@@ -1,12 +1,22 @@
 package HireCraft.com.SpringBoot.services.impl;
 
+import HireCraft.com.SpringBoot.dtos.PaymentBreakdown;
 import HireCraft.com.SpringBoot.dtos.requests.PaymentRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentResponse;
+import HireCraft.com.SpringBoot.dtos.response.StripePaymentResponse;
+import HireCraft.com.SpringBoot.exceptions.PaymentNotFoundException;
+import HireCraft.com.SpringBoot.exceptions.PaymentProcessingException;
 import HireCraft.com.SpringBoot.models.Payment;
+import HireCraft.com.SpringBoot.processor.StripePaymentProcessor;
 import HireCraft.com.SpringBoot.repository.PaymentRepository;
 import HireCraft.com.SpringBoot.services.PaymentService;
 import jakarta.transaction.Transactional;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -52,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment = paymentRepository.save(payment);
 
             // Process with payment processor
-            StripePaymentResult stripeResult = stripePaymentProcessor.processPayment(
+            StripePaymentResponse stripeResponse = stripePaymentProcessor.processPayment(
                     request.getPaymentMethodId(),
                     breakdown.getTotalAmount(),
                     breakdown.getPlatformFee(),
@@ -60,8 +70,8 @@ public class PaymentServiceImpl implements PaymentService {
             );
 
             // Update payment with result
-            payment.setExternalTransactionId(stripeResult.getTransactionId());
-            payment.setStatus(stripeResult.isSuccess() ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
+            payment.setExternalTransactionId(stripeResponse.getTransactionId());
+            payment.setStatus(stripeResponse.isSuccess() ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
             payment = paymentRepository.save(payment);
 
             log.info("Payment processed successfully. Payment ID: {}, Status: {}",
