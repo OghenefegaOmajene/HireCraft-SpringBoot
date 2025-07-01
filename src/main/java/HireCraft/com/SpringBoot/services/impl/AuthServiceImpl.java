@@ -15,10 +15,11 @@ import HireCraft.com.SpringBoot.dtos.response.RegisterResponse;
 import HireCraft.com.SpringBoot.enums.UserStatus;
 import HireCraft.com.SpringBoot.security.jwt.JwtTokenProvider;
 import HireCraft.com.SpringBoot.utils.PasswordUtil;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -163,14 +164,200 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+
+    // Add this helper method to create the HTML email template
+    private String createOtpEmailTemplate(String firstName, String otpCode, int expiryMinutes) {
+        System.out.println("firstName type: " + firstName.getClass() + ", value: " + firstName);
+        System.out.println("otpCode type: " + otpCode.getClass() + ", value: " + otpCode);
+        System.out.println("expiryMinutes type: " + expiryMinutes + ", class: " + Integer.class);
+
+        return """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Password Reset Code</title>
+                <style>
+                    body {
+                        font-family: 'Arial', sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background: #ffffff;
+                        border-radius: 10px;
+                        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                        overflow: hidden;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 30px;
+                        text-align: center;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 300;
+                    }
+                    .content {
+                        padding: 40px 30px;
+                        text-align: center;
+                    }
+                    .greeting {
+                        font-size: 18px;
+                        color: #555;
+                        margin-bottom: 20px;
+                    }
+                    .message {
+                        font-size: 16px;
+                        color: #666;
+                        margin-bottom: 30px;
+                        line-height: 1.5;
+                    }
+                    .otp-container {
+                        background: #f8f9fa;
+                        border: 2px dashed #dee2e6;
+                        border-radius: 8px;
+                        padding: 20px;
+                        margin: 30px 0;
+                    }
+                    .otp-code {
+                        font-size: 36px;
+                        font-weight: bold;
+                        color: #495057;
+                        letter-spacing: 8px;
+                        margin: 10px 0;
+                        font-family: 'Courier New', monospace;
+                    }
+                    .otp-label {
+                        font-size: 14px;
+                        color: #6c757d;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 10px;
+                    }
+                    .expiry-info {
+                        background: #fff3cd;
+                        border: 1px solid #ffeaa7;
+                        border-radius: 5px;
+                        padding: 15px;
+                        margin: 20px 0;
+                        color: #856404;
+                    }
+                    .security-note {
+                        background: #d1ecf1;
+                        border: 1px solid #bee5eb;
+                        border-radius: 5px;
+                        padding: 15px;
+                        margin: 20px 0;
+                        color: #0c5460;
+                        font-size: 14px;
+                    }
+                    .footer {
+                        background: #f8f9fa;
+                        padding: 20px;
+                        text-align: center;
+                        border-top: 1px solid #dee2e6;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                        font-size: 14px;
+                        color: #6c757d;
+                    }
+                    .brand {
+                        color: #667eea;
+                        font-weight: bold;
+                        text-decoration: none;
+                    }
+                    @media (max-width: 600px) {
+                        .container {
+                            margin: 10px;
+                            border-radius: 0;
+                        }
+                        .header, .content {
+                            padding: 20px;
+                        }
+                        .otp-code {
+                            font-size: 28px;
+                            letter-spacing: 4px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🔐 HireCraft</h1>
+                        <p style="margin: 10px 0 0 0; opacity: 0.9;">Password Reset Request</p>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="greeting">
+                            Hello %s! 👋
+                        </div>
+                        
+                        <div class="message">
+                            We received a request to reset your password. Use the verification code below to continue with your password reset.
+                        </div>
+                        
+                        <div class="otp-container">
+                            <div class="otp-label">Your Verification Code</div>
+                            <div class="otp-code">%s</div>
+                        </div>
+                        
+                        <div class="expiry-info">
+                            ⏰ <strong>Important:</strong> This code will expire in %d minutes for your security.
+                        </div>
+                        
+                        <div class="security-note">
+                            🛡️ <strong>Security Tip:</strong> If you didn't request this password reset, please ignore this email. Your account remains secure.
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p><strong><a href="#" class="brand">HireCraft</a></strong></p>
+                        <p>Connecting talent with opportunity</p>
+                        <p style="font-size: 12px; color: #adb5bd;">
+                            This is an automated email. Please do not reply to this message.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(firstName, otpCode, expiryMinutes);
+    }
+
+    // Alternative: You can also create a separate method for plain text fallback
+    private String createOtpPlainTextTemplate(String firstName, String otpCode, int expiryMinutes) {
+        return String.format("""
+            Hello %s,
+            
+            We received a request to reset your password for your HireCraft account.
+            
+            Your verification code is: %s
+            
+            This code will expire in %d minutes.
+            
+            If you didn't request this password reset, please ignore this email.
+            
+            Best regards,
+            The HireCraft Team
+            """, firstName, otpCode, expiryMinutes);
+    }
+
+    // Enhanced version with both HTML and plain text (recommended for better compatibility)
     @Override
     public ForgotPasswordResponse forgotPassword(ForgetPasswordRequest request) {
-        // 1. Lookup user (silent if not found)
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
-            // 2. Generate 6-digit code
             String code = String.format("%0" + TOKEN_LENGTH + "d", RANDOM.nextInt(1_000_000));
 
-            // 3. Save token
             PasswordResetToken prt = PasswordResetToken.builder()
                     .user(user)
                     .token(code)
@@ -179,23 +366,27 @@ public class AuthServiceImpl implements AuthService {
                     .build();
             tokenRepository.save(prt);
 
-            // 4. Send email
-            SimpleMailMessage msg = new SimpleMailMessage();
-            msg.setTo(user.getEmail());
-            msg.setSubject("Your Password Reset Code");
-            msg.setText("Your password reset code is: " + code
-                    + "\nThis code will expire in " + TOKEN_EXPIRY_MINUTES + " minutes.");
             try {
-                mailSender.send(msg); // Use JavaMailSender
-            } catch (Exception e) {
-                // Log the exception. For forgot password, often best to return generic success
-                // message even if email fails to prevent user enumeration.
-                System.err.println("Failed to send password reset email via Gmail SMTP: " + e.getMessage());
-                // Optionally: throw new RuntimeException("Email sending failed.", e);
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+                helper.setTo(user.getEmail());
+                helper.setFrom("noreply@hirecraft.com");
+                helper.setSubject("🔐 Your HireCraft Password Reset Code");
+
+                // Set both HTML and plain text versions
+                String htmlContent = createOtpEmailTemplate(user.getFirstName(), code, TOKEN_EXPIRY_MINUTES);
+                String plainTextContent = createOtpPlainTextTemplate(user.getFirstName(), code, TOKEN_EXPIRY_MINUTES);
+
+                helper.setText(plainTextContent, htmlContent); // plain text first, then HTML
+
+                mailSender.send(mimeMessage);
+
+            } catch (MessagingException e) {
+                System.err.println("Failed to send password reset email: " + e.getMessage());
             }
         });
 
-        // 5. Always return success message to prevent account enumeration
         return new ForgotPasswordResponse(
                 "If that email is registered, you will receive a reset code shortly."
         );
