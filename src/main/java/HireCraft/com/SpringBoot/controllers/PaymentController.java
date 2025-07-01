@@ -27,10 +27,8 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping
+    @PostMapping("/processPayment")
     public ResponseEntity<PaymentResponse> processPayment(@Valid @RequestBody PaymentRequest request) {
-        log.info("Received payment request for amount: {}", request.getAmount());
-
         PaymentResponse response = paymentService.processPayment(request);
         return ResponseEntity.ok(response);
     }

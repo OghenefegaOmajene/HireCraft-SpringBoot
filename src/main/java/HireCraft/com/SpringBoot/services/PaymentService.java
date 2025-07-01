@@ -3,6 +3,7 @@ package HireCraft.com.SpringBoot.services;
 import HireCraft.com.SpringBoot.dtos.requests.PaymentRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentResponse;
 import HireCraft.com.SpringBoot.dtos.PaymentBreakdown;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,4 +17,5 @@ public interface PaymentService {
     PaymentBreakdown calculatePaymentBreakdown(BigDecimal amount);
     BigDecimal calculateProviderEarnings(Long providerId, LocalDateTime startDate, LocalDateTime endDate);
     BigDecimal calculatePlatformRevenue(LocalDateTime startDate, LocalDateTime endDate);
+    List<PaymentResponse> getBookingPayments(Long bookingId);
 }

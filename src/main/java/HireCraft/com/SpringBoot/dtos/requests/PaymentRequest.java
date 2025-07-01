@@ -63,4 +63,8 @@ public class PaymentRequest {
     public String getDescription() {
         return description;
     }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
 }

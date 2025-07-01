@@ -135,4 +135,14 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal revenue = paymentRepository.calculateTotalPlatformRevenue(startDate, endDate);
         return revenue != null ? revenue : BigDecimal.ZERO;
     }
+
+    // In PaymentService interface and implementation
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getBookingPayments(Long bookingId) {
+        return paymentRepository.findByBookingIdOrderByCreatedAtDesc(bookingId)
+                .stream()
+                .map(PaymentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

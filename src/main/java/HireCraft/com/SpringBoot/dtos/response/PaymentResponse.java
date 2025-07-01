@@ -30,7 +30,7 @@ public class PaymentResponse {
 
     public static PaymentResponse fromEntity(Payment payment) {
         return PaymentResponse.builder()
-                .id(payment.getId())
+                .paymentId(payment.getId())
                 .clientId(payment.getClientId())
                 .providerId(payment.getProviderId())
                 .bookingId(payment.getBookingId())
