@@ -116,8 +116,8 @@ public class BookingServiceImpl implements BookingService {
         try {
             String providerEmail = serviceProviderProfile.getUser().getEmail();
             String providerName = serviceProviderProfile.getUser().getFirstName();
-            String html = buildHtmlBookingNotificationToProvider(providerName, clientFullName, request.getDescription(), request.getTimeSlot(), request.getEstimatedDuration(), savedBooking.getId());
-            String plain = buildPlainBookingNotificationToProvider(providerName, clientFullName, request.getDescription(), request.getTimeSlot(), request.getEstimatedDuration(), savedBooking.getId());
+            String html = buildHtmlBookingNotificationToProvider(providerName, clientFullName, request.getDescription(), request.getTimeSlot(), request.getEstimatedDuration());
+            String plain = buildPlainBookingNotificationToProvider(providerName, clientFullName, request.getDescription(), request.getTimeSlot(), request.getEstimatedDuration());
 
             MimeMessage messageEmail = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(messageEmail, true, "UTF-8");
@@ -133,29 +133,32 @@ public class BookingServiceImpl implements BookingService {
         return mapToBookingResponse(savedBooking);
     }
 
-    private String buildHtmlBookingNotificationToProvider(String providerName, String clientName, String description, LocalDateTime timeSlot, String duration, Long bookingId) {
-        String formattedTime = timeSlot.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
+    private String buildHtmlBookingNotificationToProvider(String providerName, String clientName, String description, String timeSlot, String duration) {
+//        String formattedTime = timeSlot.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
         return String.format("""
                 <html>
                 <body style='font-family: Arial, sans-serif;'>
-                    <h2 style='color:#35D07D;'>Hello %s,</h2>
-                    <p>You have a new booking request from <strong>%s</strong>.</p>
-                    <ul>
-                        <li><strong>Service:</strong> %s</li>
-                        <li><strong>Time Slot:</strong> %s</li>
-                        <li><strong>Estimated Duration:</strong> %s</li>
-                        <li><strong>Booking ID:</strong> #%d</li>
-                    </ul>
-                    <p>Log in to your dashboard to accept or decline this booking.</p>
-                    <p style='color:#888; font-size: 12px;'>This is an automated message. Please do not reply.</p>
+                   "Dear %s,\\n\\n" +
+                      "You have received a new booking request on Hire<span style='color:#35D07D;'>Craft</span>!\\n\\n" +
+                      "Booking Details:\\n" +
+                      "• Client: %s\\n" +
+                      "• Message: %s\\n" +
+                      "• Requested Time: %s\\n" +
+                      "• Estimated Duration: %s\\n" +
+                      "Please log in to your HireCraft dashboard to review and respond to this booking request.\\n\\n" +
+                      "You can accept or decline this request based on your availability.\\n\\n" +
+                      "Best regards,\\n" +
+                        <span style='color:#35D07D;'>The HireCraft Team</span>\\n\\n +
+                          "---\\n" +
+                      "This is an automated message. Please do not reply to this email.",
                 </body>
                 </html>
-                """, providerName, clientName, description, formattedTime, duration, bookingId);
+                """, providerName, clientName, description, timeSlot, duration);
     }
 
-    private String buildPlainBookingNotificationToProvider(String providerName, String clientName, String description, LocalDateTime timeSlot, String duration, Long bookingId) {
-        String formattedTime = timeSlot.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
-        return String.format("Dear %s,\n\nYou have a new booking request from %s.\n\nService: %s\nTime Slot: %s\nEstimated Duration: %s\nBooking ID: #%d\n\nPlease log in to your dashboard to respond.\n\n- HireCraft Team", providerName, clientName, description, formattedTime, duration, bookingId);
+    private String buildPlainBookingNotificationToProvider(String providerName, String clientName, String description, String timeSlot, String duration) {
+//        String formattedTime = timeSlot.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
+        return String.format("Dear %s,\n\nYou have a new booking request from %s.\n\nMessage: %s\nTime Slot: %s\nEstimated Duration: %s\n\nPlease log in to your dashboard to respond.\n\n- HireCraft Team", providerName, clientName, description, timeSlot, duration);
     }
 
     @Override
