@@ -11,7 +11,7 @@ import HireCraft.com.SpringBoot.models.Payment;
 import HireCraft.com.SpringBoot.processor.StripePaymentProcessor;
 import HireCraft.com.SpringBoot.repository.PaymentRepository;
 import HireCraft.com.SpringBoot.services.PaymentService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
             Payment payment = Payment.builder()
                     .clientId(request.getClientId())
                     .providerId(request.getProviderId())
-                    .projectId(request.getProjectId())
+                    .bookingId(request.getBookingId())
                     .totalAmount(breakdown.getTotalAmount())
                     .platformFeePercentage(breakdown.getPlatformFeePercentage())
                     .platformFee(breakdown.getPlatformFee())

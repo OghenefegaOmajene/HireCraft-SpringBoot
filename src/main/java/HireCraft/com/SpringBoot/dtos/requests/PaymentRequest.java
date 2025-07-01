@@ -21,7 +21,7 @@ public class PaymentRequest {
     @NotNull(message = "Provider ID is required")
     private Long providerId;
 
-    private Long projectId;
+    private Long bookingId;
 
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
@@ -44,8 +44,8 @@ public class PaymentRequest {
         return providerId;
     }
 
-    public Long getProjectId() {
-        return projectId;
+    public Long getBookingId() {
+        return bookingId;
     }
 
     public @NotNull(message = "Amount is required") @DecimalMin(value = "0.01", message = "Amount must be greater than 0") @Digits(integer = 8, fraction = 2, message = "Amount format is invalid") BigDecimal getAmount() {
