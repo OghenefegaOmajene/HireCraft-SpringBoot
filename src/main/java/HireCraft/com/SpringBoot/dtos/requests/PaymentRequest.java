@@ -35,4 +35,32 @@ public class PaymentRequest {
     private String paymentMethodId; // Stripe payment method ID
 
     private String description;
+
+    public @NotNull(message = "Client ID is required") Long getClientId() {
+        return clientId;
+    }
+
+    public @NotNull(message = "Provider ID is required") Long getProviderId() {
+        return providerId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public @NotNull(message = "Amount is required") @DecimalMin(value = "0.01", message = "Amount must be greater than 0") @Digits(integer = 8, fraction = 2, message = "Amount format is invalid") BigDecimal getAmount() {
+        return amount;
+    }
+
+    public @NotBlank(message = "Payment method is required") String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public @NotBlank(message = "Payment method ID is required") String getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

@@ -4,6 +4,7 @@ import HireCraft.com.SpringBoot.dtos.PaymentBreakdown;
 import HireCraft.com.SpringBoot.dtos.requests.PaymentRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentResponse;
 import HireCraft.com.SpringBoot.dtos.response.StripePaymentResponse;
+import HireCraft.com.SpringBoot.enums.PaymentStatus;
 import HireCraft.com.SpringBoot.exceptions.PaymentNotFoundException;
 import HireCraft.com.SpringBoot.exceptions.PaymentProcessingException;
 import HireCraft.com.SpringBoot.models.Payment;
@@ -11,22 +12,27 @@ import HireCraft.com.SpringBoot.processor.StripePaymentProcessor;
 import HireCraft.com.SpringBoot.repository.PaymentRepository;
 import HireCraft.com.SpringBoot.services.PaymentService;
 import jakarta.transaction.Transactional;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
     private final PaymentRepository paymentRepository;
     private final StripePaymentProcessor stripePaymentProcessor;
 
-    @Value("${hirecraft.payment.platform-fee-percentage:8.0}")
+    @Value("${hirecraft.payment.platform-fee-percentage}")
     private BigDecimal platformFeePercentage;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,

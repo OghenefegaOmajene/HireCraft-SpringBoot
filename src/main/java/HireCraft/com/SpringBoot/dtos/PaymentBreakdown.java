@@ -30,4 +30,36 @@ public class PaymentBreakdown {
                 .providerAmount(providerAmount)
                 .build();
     }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getPlatformFeePercentage() {
+        return platformFeePercentage;
+    }
+
+    public void setPlatformFeePercentage(BigDecimal platformFeePercentage) {
+        this.platformFeePercentage = platformFeePercentage;
+    }
+
+    public BigDecimal getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(BigDecimal platformFee) {
+        this.platformFee = platformFee;
+    }
+
+    public BigDecimal getProviderAmount() {
+        return providerAmount;
+    }
+
+    public void setProviderAmount(BigDecimal providerAmount) {
+        this.providerAmount = providerAmount;
+    }
 }
