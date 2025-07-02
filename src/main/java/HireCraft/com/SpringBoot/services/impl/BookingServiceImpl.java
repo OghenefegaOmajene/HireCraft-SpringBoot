@@ -134,26 +134,82 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private String buildHtmlBookingNotificationToProvider(String providerName, String clientName, String description, String timeSlot, String duration) {
-//        String formattedTime = timeSlot.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
         return String.format("""
-                <html>
-                <body style='font-family: Arial, sans-serif;'>
-                   "Dear %s,\\n\\n" +
-                      "You have received a new booking request on Hire<span style='color:#35D07D;'>Craft</span>!\\n\\n" +
-                      "Booking Details:\\n" +
-                      "• Client: %s\\n" +
-                      "• Message: %s\\n" +
-                      "• Requested Time: %s\\n" +
-                      "• Estimated Duration: %s\\n" +
-                      "Please log in to your HireCraft dashboard to review and respond to this booking request.\\n\\n" +
-                      "You can accept or decline this request based on your availability.\\n\\n" +
-                      "Best regards,\\n" +
-                        <span style='color:#35D07D;'>The HireCraft Team</span>\\n\\n +
-                          "---\\n" +
-                      "This is an automated message. Please do not reply to this email.",
-                </body>
-                </html>
-                """, providerName, clientName, description, timeSlot, duration);
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f4f4f4;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+            .email-container {
+                background-color: #ffffff;
+                max-width: 600px;
+                margin: 30px auto;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            }
+            .header {
+                text-align: center;
+                color: #35D07D;
+                font-size: 28px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            .content {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+            .details {
+                margin: 20px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-left: 5px solid #35D07D;
+            }
+            .footer {
+                font-size: 12px;
+                color: #888;
+                margin-top: 30px;
+                text-align: center;
+            }
+            .highlight {
+                color: #35D07D;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">Hire<span class="highlight">Craft</span> Booking Request</div>
+            <div class="content">
+                <p>Dear %s,</p>
+                <p>You have received a new booking request on <strong>Hire<span class="highlight">Craft</span></strong>!</p>
+
+                <div class="details">
+                    <p><strong>Client:</strong> %s</p>
+                    <p><strong>Message:</strong> %s</p>
+                    <p><strong>Requested Time:</strong> %s</p>
+                    <p><strong>Estimated Duration:</strong> %s</p>
+                </div>
+
+                <p>Please log in to your HireCraft dashboard to review and respond to this booking request. You can accept or decline the request based on your availability.</p>
+
+                <p>Best regards,<br>
+                <span class="highlight">The HireCraft Team</span></p>
+            </div>
+            <div class="footer">
+                <p>This is an automated message. Please do not reply to this email.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, providerName, clientName, description, timeSlot, duration);
+
+
     }
 
     private String buildPlainBookingNotificationToProvider(String providerName, String clientName, String description, String timeSlot, String duration) {
@@ -226,21 +282,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional // Ensure the status update is atomic
+    @Transactional
     public BookingResponse updateBookingStatus(Long bookingId, UpdateBookingStatusRequest request, UserDetails userDetails) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + bookingId));
 
-        // Get the authenticated user's actual User entity
         User authenticatedUser = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
-        // Determine if the authenticated user is the client of this booking
         boolean isClientOfBooking = booking.getClientProfile().getUser().getId().equals(authenticatedUser.getId());
-        // Determine if the authenticated user is the provider of this booking
         boolean isProviderOfBooking = booking.getProviderProfile().getUser().getId().equals(authenticatedUser.getId());
 
-        // Initial authorization check: User must be either the client or the provider of the booking
         if (!isClientOfBooking && !isProviderOfBooking) {
             throw new UnauthorizedBookingActionException("You are not authorized to update this booking.");
         }
@@ -248,27 +300,22 @@ public class BookingServiceImpl implements BookingService {
         BookingStatus currentStatus = booking.getStatus();
         BookingStatus newStatus = request.getNewStatus();
 
-        // --- Business Logic for Status Transitions based on Role ---
+        BookingStatus originalStatus = currentStatus;
 
         if (authenticatedUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_CLIENT"))) {
-            // Logic for Client
             if (!isClientOfBooking) {
                 throw new UnauthorizedBookingActionException("As a client, you can only cancel your own bookings.");
             }
             if (newStatus == BookingStatus.CANCELLED) {
-                // Client can only cancel if PENDING or ACCEPTED
                 if (currentStatus == BookingStatus.PENDING || currentStatus == BookingStatus.ACCEPTED) {
                     booking.setStatus(newStatus);
                 } else {
-                    throw new InvalidBookingStatusTransitionException(
-                            "Cannot cancel a booking that is " + currentStatus.name() + ". Only PENDING or ACCEPTED bookings can be cancelled."
-                    );
+                    throw new InvalidBookingStatusTransitionException("Cannot cancel a booking that is " + currentStatus.name() + ". Only PENDING or ACCEPTED bookings can be cancelled.");
                 }
             } else {
                 throw new InvalidBookingStatusTransitionException("Clients can only change booking status to CANCELLED.");
             }
         } else if (authenticatedUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_PROVIDER"))) {
-            // Logic for Provider
             if (!isProviderOfBooking) {
                 throw new UnauthorizedBookingActionException("As a provider, you can only manage your own service bookings.");
             }
@@ -298,14 +345,110 @@ public class BookingServiceImpl implements BookingService {
                     throw new InvalidBookingStatusTransitionException("Providers can only change booking status to ACCEPTED, DECLINED, or COMPLETED.");
             }
         } else {
-            // This case should ideally be caught by @PreAuthorize, but as a fallback.
             throw new UnauthorizedBookingActionException("Your role does not permit updating booking statuses.");
         }
 
-        // Save the updated booking
         Booking updatedBooking = bookingRepository.save(booking);
+
+        if (originalStatus == BookingStatus.PENDING && newStatus == BookingStatus.ACCEPTED) {
+            try {
+                String clientEmail = booking.getClientProfile().getUser().getEmail();
+                String clientFullName = booking.getClientProfile().getUser().getFirstName() + " " + booking.getClientProfile().getUser().getLastName();
+                String providerFullName = booking.getProviderProfile().getUser().getFirstName() + " " + booking.getProviderProfile().getUser().getLastName();
+
+                String emailSubject = "Booking Request Accepted - HireCraft";
+                String htmlContent = buildStyledBookingAcceptedHtml(clientFullName, providerFullName,
+                        booking.getProviderProfile().getOccupation(), booking.getDescription(),
+                        booking.getTimeSlot(), booking.getEstimatedDuration());
+
+                String plainTextContent = buildBookingAcceptedPlainText(clientFullName, providerFullName,
+                        booking.getProviderProfile().getOccupation(), booking.getDescription(),
+                        booking.getTimeSlot(), booking.getEstimatedDuration());
+
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                helper.setTo(clientEmail);
+                helper.setFrom("noreply@hirecraft.com");
+                helper.setSubject(emailSubject);
+                helper.setText(plainTextContent, htmlContent);
+
+                mailSender.send(mimeMessage);
+
+            } catch (Exception e) {
+                System.err.println("Failed to send booking accepted email: " + e.getMessage());
+            }
+        }
+
         return mapToBookingResponse(updatedBooking);
     }
+
+    private String buildStyledBookingAcceptedHtml(String clientName, String providerName,
+                                                  String providerOccupation, String description,
+                                                  String timeSlot, String estimatedDuration
+                                                  ) {
+
+        return String.format("""
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; }
+                .container { background: #fff; max-width: 600px; margin: 20px auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                h1 { color: #35D07D; }
+                .details { background: #f8f9fa; padding: 15px; border-left: 5px solid #35D07D; margin: 20px 0; }
+                .footer { font-size: 12px; color: #999; text-align: center; margin-top: 30px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Booking Accepted</h1>
+                <p>Dear %s,</p>
+                <p>Great news! Your booking request has been accepted by <strong>%s</strong>.</p>
+                <div class="details">
+                    <p><strong>Occupation:</strong> %s</p>
+                    <p><strong>Message:</strong> %s</p>
+                    <p><strong>Scheduled Time:</strong> %s</p>
+                    <p><strong>Duration:</strong> %s</p>
+                </div>
+                <p>You can view details and communicate with your provider through the HireCraft dashboard.</p>
+                <p>Best regards,<br><span style='color:#35D07D;'>The HireCraft Team</span></p>
+                <div class="footer">This is an automated message. Please do not reply.</div>
+            </div>
+        </body>
+        </html>
+        """,
+                clientName, providerName, providerOccupation != null ? providerOccupation : "Service Provider",
+                description, timeSlot, estimatedDuration);
+    }
+
+    private String buildBookingAcceptedPlainText(String clientName, String providerName,
+                                                 String providerOccupation, String description,
+                                                 String timeSlot, String estimatedDuration
+                                                 ) {
+
+        return String.format("""
+        Dear %s,
+
+        Great news! Your booking request has been accepted.
+
+        Booking Details:
+        • Service Provider: %s
+        • Occupation: %s
+        • Message: %s
+        • Scheduled Time: %s
+        • Estimated Duration: %s
+
+        Please check your dashboard to view full details and message the provider.
+
+        Best regards,
+        The HireCraft Team
+
+        ---
+        This is an automated message. Please do not reply.
+        """,
+                clientName, providerName, providerOccupation != null ? providerOccupation : "Service Provider",
+                description, timeSlot, estimatedDuration);
+    }
+
 
     private BookingResponse mapToResponse(Booking booking) {
         BookingResponse response = new BookingResponse();
