@@ -65,12 +65,12 @@ public class BookingController {
         return ResponseEntity.ok(metrics);
     }
 
-    @GetMapping("/client/dashboard/metrics")
-    @PreAuthorize("hasRole('ROLE_CLIENT)") // Secure this endpoint
-    public ResponseEntity<ClientDashboardMetricsResponse> getClientDashboardMetrics(@AuthenticationPrincipal UserDetails userDetails) {
-        ProviderDashboardMetricsResponse metrics = bookingService.getClientDashboardMetrics(userDetails);
-        return ResponseEntity.ok(metrics);
-    }
+//    @GetMapping("/client/dashboard/metrics")
+//    @PreAuthorize("hasRole('ROLE_CLIENT)") // Secure this endpoint
+//    public ResponseEntity<ClientDashboardMetricsResponse> getClientDashboardMetrics(@AuthenticationPrincipal UserDetails userDetails) {
+//        ProviderDashboardMetricsResponse metrics = bookingService.getClientDashboardMetrics(userDetails);
+//        return ResponseEntity.ok(metrics);
+//    }
 
     @GetMapping("/provider/chart/monthly")
     @PreAuthorize("hasRole('ROLE_PROVIDER')")
