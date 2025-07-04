@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class ClientBookingViewResponse {
     private Long id;
+    private String profilePictureUrl;
     private String providerFullName;
     private String occupation;
 
@@ -19,6 +20,10 @@ public class ClientBookingViewResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public void setProviderFullName(String providerFullName) {

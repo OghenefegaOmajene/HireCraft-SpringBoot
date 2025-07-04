@@ -233,6 +233,7 @@ public class BookingServiceImpl implements BookingService {
         User clientUser = booking.getClientProfile().getUser();
 
         response.setId(booking.getId());
+        response.setProfilePictureUrl(clientUser.getProfilePictureUrl());
         response.setClientFullName(clientUser.getFirstName() + " " + clientUser.getLastName());
         response.setClientPosition(booking.getClientProfile().getPosition());
         // Added null check for getClientProfile().getCompanyName()
@@ -266,6 +267,7 @@ public class BookingServiceImpl implements BookingService {
         User providerUser = booking.getProviderProfile().getUser();
 
         response.setId(booking.getId());
+        response.setProfilePictureUrl(providerUser.getProfilePictureUrl());
         response.setProviderFullName(providerUser.getFirstName() + " " + providerUser.getLastName());
         // Added null check for getProviderProfile().getOccupation()
         response.setOccupation(booking.getProviderProfile() != null ? booking.getProviderProfile().getOccupation() : null);
@@ -453,6 +455,7 @@ public class BookingServiceImpl implements BookingService {
     private BookingResponse mapToResponse(Booking booking) {
         BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
+        response.setProfilePictureUrl(booking.getClientProfile().getUser().getProfilePictureUrl());
         response.setClientFullName(booking.getClientProfile().getUser().getFirstName() + " " + booking.getClientProfile().getUser().getLastName());
         response.setClientCompany(booking.getClientProfile().getCompanyName());
         response.setClientPosition(booking.getClientProfile().getPosition());
