@@ -10,8 +10,7 @@ public class BookingResponse {
     private Long id;
     private String profilePictureUrl;
     private String clientFullName;
-    private String clientCompany;
-    private String clientPosition;
+    private String clientJobTitle;
 
     private String city;
     private String state;
@@ -35,12 +34,8 @@ public class BookingResponse {
         this.clientFullName = clientFullName;
     }
 
-    public void setClientCompany(String clientCompany) {
-        this.clientCompany = clientCompany;
-    }
-
-    public void setClientPosition(String clientPosition) {
-        this.clientPosition = clientPosition;
+    public void setClientJobTitle(String clientJobTitle) {
+        this.clientJobTitle = clientJobTitle;
     }
 
     public void setCity(String city) {

@@ -1,9 +1,8 @@
 package HireCraft.com.SpringBoot.enums;
 
 public enum TaskStatus {
-    PENDING,
+    TO_DO,
     IN_PROGRESS,
+    ON_HOLD,
     COMPLETED,
-    CANCELLED
-
 }

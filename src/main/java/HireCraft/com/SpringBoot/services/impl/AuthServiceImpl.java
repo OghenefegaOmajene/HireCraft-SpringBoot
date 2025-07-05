@@ -104,11 +104,8 @@ public class AuthServiceImpl implements AuthService {
                 throw new IllegalArgumentException("Hourly Rate is required for service providers.");
             }
         } else if ("ROLE_CLIENT".equalsIgnoreCase(request.getRole())) {
-            if (request.getProfession() == null || request.getProfession().isBlank()) {
-                throw new IllegalArgumentException("Profession is required for clients.");
-            }
-            if (request.getPosition() == null || request.getPosition().isBlank()) {
-                throw new IllegalArgumentException("Position is required for clients.");
+            if (request.getJobTitle() == null || request.getJobTitle().isBlank()) {
+                throw new IllegalArgumentException("Job Title is required for clients.");
             }
         }
 
@@ -129,11 +126,7 @@ public class AuthServiceImpl implements AuthService {
 
         if ("ROLE_CLIENT".equals(request.getRole())) {
             ClientProfile clientProfile = ClientProfile.builder()
-                    .position(request.getPosition())
-                    .profession(request.getProfession())
-                    .companyName(null)
-                    .bio(null)
-                    .companyWebsiteUrl(null)
+                    .jobTitle(request.getJobTitle())
                     .user(savedUser)
                     .build();
 

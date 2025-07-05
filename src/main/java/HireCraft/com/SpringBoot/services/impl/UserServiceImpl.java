@@ -126,11 +126,7 @@ public class UserServiceImpl implements UserService {
         // === Client Profile Update ===
         if (user.getClientProfile() != null) {
             ClientProfile clientProfile = user.getClientProfile();
-            if(request.getPosition() !=null) clientProfile.setPosition(request.getPosition());
-            if(request.getProfession() !=null) clientProfile.setProfession(request.getProfession());
-            if (request.getCompanyName() != null) clientProfile.setCompanyName(request.getCompanyName());
-            if (request.getCompanyWebsiteUrl() != null) clientProfile.setCompanyWebsiteUrl(request.getCompanyWebsiteUrl());
-            if (request.getClientBio() != null) clientProfile.setBio(request.getClientBio());
+            if(request.getJobTitle() !=null) clientProfile.setJobTitle(request.getJobTitle());
             clientProfileRepository.save(clientProfile);
         }
 
@@ -336,11 +332,7 @@ public class UserServiceImpl implements UserService {
         String cvUrl = null;
 
         Long clientId = null;
-        String companyName = null;
-        String position = null;
-        String profession = null;
-        String companyWebsiteUrl = null;
-        String clientBio = null;
+        String jobTitle = null;
 
         String userRole = "";
 
@@ -382,11 +374,11 @@ public class UserServiceImpl implements UserService {
         } else if (user.getClientProfile() != null) {
             ClientProfile clientProfile = user.getClientProfile();
             clientId = clientProfile.getId();
-            companyName = clientProfile.getCompanyName();
-            position = clientProfile.getPosition();
-            profession = clientProfile.getProfession();
-            companyWebsiteUrl = clientProfile.getCompanyWebsiteUrl();
-            clientBio = clientProfile.getBio();
+            jobTitle = clientProfile.getJobTitle();
+//            position = clientProfile.getPosition();
+//            profession = clientProfile.getProfession();
+//            companyWebsiteUrl = clientProfile.getCompanyWebsiteUrl();
+//            clientBio = clientProfile.getBio();
         }
 
         return new UserDetailResponse(
@@ -409,11 +401,7 @@ public class UserServiceImpl implements UserService {
                 providerBio,
                 skills,
                 cvUrl,
-                companyName,
-                position,
-                profession,
-                companyWebsiteUrl,
-                clientBio,
+                jobTitle,
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 user.getProfilePictureUrl()

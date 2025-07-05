@@ -235,9 +235,8 @@ public class BookingServiceImpl implements BookingService {
         response.setId(booking.getId());
         response.setProfilePictureUrl(clientUser.getProfilePictureUrl());
         response.setClientFullName(clientUser.getFirstName() + " " + clientUser.getLastName());
-        response.setClientPosition(booking.getClientProfile().getPosition());
+        response.setClientJobTitle(booking.getClientProfile().getJobTitle());
         // Added null check for getClientProfile().getCompanyName()
-        response.setClientCompany(clientUser.getClientProfile() != null ? clientUser.getClientProfile().getCompanyName() : null);
         response.setCity(clientUser.getCity());
         response.setState(clientUser.getState());
         response.setCountry(clientUser.getCountry());
@@ -457,8 +456,7 @@ public class BookingServiceImpl implements BookingService {
         response.setId(booking.getId());
         response.setProfilePictureUrl(booking.getClientProfile().getUser().getProfilePictureUrl());
         response.setClientFullName(booking.getClientProfile().getUser().getFirstName() + " " + booking.getClientProfile().getUser().getLastName());
-        response.setClientCompany(booking.getClientProfile().getCompanyName());
-        response.setClientPosition(booking.getClientProfile().getPosition());
+        response.setClientJobTitle(booking.getClientProfile().getJobTitle());
         response.setCity(booking.getClientProfile().getUser().getCity());
         response.setState(booking.getClientProfile().getUser().getState());
         response.setCountry(booking.getClientProfile().getUser().getCountry());

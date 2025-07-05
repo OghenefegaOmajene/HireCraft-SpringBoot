@@ -84,10 +84,12 @@ public class MessageServiceImpl implements MessageService {
         MessageResponse response = new MessageResponse();
 
         if (message.getClientProfile() != null) {
+            response.setProfilePictureUrl(message.getClientProfile().getUser().getProfilePictureUrl());
             response.setSenderType("CLIENT");
             response.setSenderFullName(message.getClientProfile().getUser().getFirstName()
                     + " " + message.getClientProfile().getUser().getLastName());
         } else if (message.getProviderProfile() != null) {
+            response.setProfilePictureUrl(message.getProviderProfile().getUser().getProfilePictureUrl());
             response.setSenderType("PROVIDER");
             response.setSenderFullName(message.getProviderProfile().getUser().getFirstName()
                     + " " + message.getProviderProfile().getUser().getLastName());

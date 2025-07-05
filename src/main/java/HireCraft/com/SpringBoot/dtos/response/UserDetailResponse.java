@@ -32,18 +32,18 @@ public class UserDetailResponse {
     private Set<String> skills;
     private String cvUrl;
 
-    private String companyName;
-    private String position;
-    private String profession;
-    private String companyWebsiteUrl;
-    private String clientBio;
+    private String jobTitle;
+//    private String position;
+//    private String profession;
+//    private String companyWebsiteUrl;
+//    private String clientBio;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String profilePictureUrl;
 
 
-    public UserDetailResponse(Long id, Long providerId, Long clientId, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, Long jobsDone, String providerBio, Set<String> skills, String cvUrl, String companyName, String position, String profession, String companyWebsiteUrl, String clientBio, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
+    public UserDetailResponse(Long id, Long providerId, Long clientId, String userRole, String firstName, String lastName, String email, String phoneNumber, String country, String state, String city, String status, double averageRating, String occupation, String hourlyRate, Long jobsDone, String providerBio, Set<String> skills, String cvUrl, String jobTitle, LocalDateTime createdAt, LocalDateTime updatedAt, String profilePictureUrl) {
         this.id = id;
         this.providerId = providerId;
         this.clientId = clientId;
@@ -63,11 +63,7 @@ public class UserDetailResponse {
         this.providerBio = providerBio;
         this.skills = skills;
         this.cvUrl = cvUrl;
-        this.companyName = companyName;
-        this.position = position;
-        this.profession = profession;
-        this.companyWebsiteUrl = companyWebsiteUrl;
-        this.clientBio = clientBio;
+        this.jobTitle = jobTitle;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.profilePictureUrl = profilePictureUrl;

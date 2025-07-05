@@ -16,11 +16,7 @@ public class UnifiedUserProfileUpdateRequest {
     private String city;
 
     // Client-specific fields
-    private String companyName;
-    private String position;
-    private String profession;
-    private String companyWebsiteUrl;
-    private String clientBio;
+    private String jobTitle;
 
     // Provider-specific fields
     private String occupation;
@@ -85,44 +81,12 @@ public class UnifiedUserProfileUpdateRequest {
         this.city = city;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public String getJobTitle() {
+        return jobTitle;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getCompanyWebsiteUrl() {
-        return companyWebsiteUrl;
-    }
-
-    public void setCompanyWebsiteUrl(String companyWebsiteUrl) {
-        this.companyWebsiteUrl = companyWebsiteUrl;
-    }
-
-    public String getClientBio() {
-        return clientBio;
-    }
-
-    public void setClientBio(String clientBio) {
-        this.clientBio = clientBio;
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
     }
 
     public String getOccupation() {

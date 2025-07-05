@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class MessageResponse {
+    private String profilePictureUrl;
     private String senderType;         // "CLIENT" or "PROVIDER"
     private String senderFullName;     // From either ClientProfile or ServiceProviderProfile
     private String content;            // Decrypted message content
@@ -12,6 +13,10 @@ public class MessageResponse {
 
     public void setSenderType(String senderType) {
         this.senderType = senderType;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public void setSenderFullName(String senderFullName) {

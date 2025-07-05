@@ -14,16 +14,7 @@ public class ClientProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String position;
-
-    private String companyName;
-
-    private String profession;
-
-    @Column(length = 1000)
-    private String bio;
-
-    private String companyWebsiteUrl;
+    private String jobTitle;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,44 +28,12 @@ public class ClientProfile {
         this.id = id;
     }
 
-    public String getPosition() {
-        return position;
+    public String getJobTitle() {
+        return jobTitle;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getCompanyWebsiteUrl() {
-        return companyWebsiteUrl;
-    }
-
-    public void setCompanyWebsiteUrl(String companyWebsiteUrl) {
-        this.companyWebsiteUrl = companyWebsiteUrl;
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
     }
 
     public User getUser() {
