@@ -118,43 +118,66 @@ public class ReviewServiceImpl implements ReviewService {
         return convertToResponseList(reviews);
     }
 
+    // Updated methods for ReviewServiceImpl
+
     @Override
     public List<ReviewResponse> getReviewsForProvider(UserDetails userDetails) {
-//        List<Review> reviews = reviewRepository.findByProviderProfile_Id(providerId);
-//        return convertToResponseList(reviews);
         ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
         return reviewRepository.findByProviderProfile_IdOrderByCreatedAtDesc(providerProfile.getId())
                 .stream()
-                .map(this::mapToReviewResponse)
+                .map(review -> mapToReviewResponseForProvider(review)) // Use specific method for provider
                 .collect(Collectors.toList());
     }
 
-    private ReviewResponse mapToReviewResponse(Review review) {
+    @Override
+    public List<ReviewResponse> getReviewsByClient(UserDetails userDetails) {
+        ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Client profile not found"));
+
+        return reviewRepository.findByClientProfile_IdOrderByCreatedAtDesc(clientProfile.getId())
+                .stream()
+                .map(review -> mapToReviewResponseForClient(review)) // Use specific method for client
+                .collect(Collectors.toList());
+    }
+
+    // Method for mapping reviews when fetched by a provider (shows client info)
+    private ReviewResponse mapToReviewResponseForProvider(Review review) {
         ReviewResponse response = new ReviewResponse();
         User clientUser = review.getClientProfile().getUser();
 
         response.setRating(review.getRatingNo());
         response.setReviewTxt(review.getReviewTxt());
         response.setClientFullName(clientUser.getFirstName() + " " + clientUser.getLastName());
+        response.setProviderFullName(null); // Not needed when provider fetches reviews
+
+        // Set client's profile picture - assuming you have a profilePictureUrl field in User model
+        response.setProfilePictureUrl(clientUser.getProfilePictureUrl()); // Make sure this field exists in User model
         response.setCreatedAt(review.getCreatedAt());
 
         return response;
     }
 
-    @Override
-    public List<ReviewResponse> getReviewsByClient(UserDetails userDetails) {
-//        List<Review> reviews = reviewRepository.findByProviderProfile_Id(providerId);
-//        return convertToResponseList(reviews);
-        ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Client profile not found"));
+    // Method for mapping reviews when fetched by a client (shows provider info)
+    private ReviewResponse mapToReviewResponseForClient(Review review) {
+        ReviewResponse response = new ReviewResponse();
+        User clientUser = review.getClientProfile().getUser();
+        User providerUser = review.getProviderProfile().getUser();
 
-        return reviewRepository.findByClientProfile_IdOrderByCreatedAtDesc(clientProfile.getId())
-                .stream()
-                .map(this::mapToReviewResponse)
-                .collect(Collectors.toList());
+        response.setRating(review.getRatingNo());
+        response.setReviewTxt(review.getReviewTxt());
+        response.setClientFullName(null);
+        response.setProviderFullName(providerUser.getFirstName() + " " + providerUser.getLastName());
+
+        // Set provider's profile picture when client fetches reviews
+        response.setProfilePictureUrl(providerUser.getProfilePictureUrl()); // Make sure this field exists in User model
+        response.setCreatedAt(review.getCreatedAt());
+
+        return response;
     }
+
+// Remove the old generic mapToReviewResponse method since we now have specific methods
 
     @Override
     public List<ReviewResponse> getReviewsByClientForProvider(Long clientId, Long providerId) {

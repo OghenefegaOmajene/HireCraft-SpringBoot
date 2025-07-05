@@ -15,7 +15,17 @@ public class ReviewResponse {
     private Double rating;
     private String reviewTxt;
     private String clientFullName;
+    private String providerFullName;
+    private String profilePictureUrl;
     private LocalDateTime createdAt;
+
+    public void setProviderFullName(String providerFullName) {
+        this.providerFullName = providerFullName;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
 
     public void setRating(Double rating) {
         this.rating = rating;
