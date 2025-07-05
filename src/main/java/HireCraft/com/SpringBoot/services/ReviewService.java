@@ -2,6 +2,7 @@ package HireCraft.com.SpringBoot.services;
 
 import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
+import HireCraft.com.SpringBoot.models.Review;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -11,8 +12,6 @@ public interface ReviewService {
     ReviewResponse createReview(ReviewRequest request, UserDetails userDetails);
 
     List<ReviewResponse> getAllReviews();  // All reviews in app
-
-//    List<ReviewResponse> getReviewsForProvider(Long providerId);
 
     List<ReviewResponse> getReviewsForProvider(UserDetails userDetails);
 

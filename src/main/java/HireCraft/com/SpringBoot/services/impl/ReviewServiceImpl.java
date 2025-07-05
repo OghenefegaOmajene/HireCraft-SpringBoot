@@ -125,7 +125,7 @@ public class ReviewServiceImpl implements ReviewService {
         ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
-        return reviewRepository.findByProviderProfile_Id(providerProfile.getId())
+        return reviewRepository.findByProviderProfile_IdOrderByCreatedAtDesc(providerProfile.getId())
                 .stream()
                 .map(this::mapToReviewResponse)
                 .collect(Collectors.toList());
@@ -150,7 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
         ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Client profile not found"));
 
-        return reviewRepository.findByClientProfile_Id(clientProfile.getId())
+        return reviewRepository.findByClientProfile_IdOrderByCreatedAtDesc(clientProfile.getId())
                 .stream()
                 .map(this::mapToReviewResponse)
                 .collect(Collectors.toList());
