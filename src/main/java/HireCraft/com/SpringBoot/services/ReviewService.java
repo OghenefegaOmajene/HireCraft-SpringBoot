@@ -16,7 +16,7 @@ public interface ReviewService {
 
     List<ReviewResponse> getReviewsForProvider(UserDetails userDetails);
 
-    List<ReviewResponse> getReviewsByClient(Long clientId); // All reviews written by a specific client
+    List<ReviewResponse> getReviewsByClient(UserDetails userDetails); // All reviews written by a specific client
 
     List<ReviewResponse> getReviewsByClientForProvider(Long clientId, Long providerId); // A client’s review(s) for a specific provider
 

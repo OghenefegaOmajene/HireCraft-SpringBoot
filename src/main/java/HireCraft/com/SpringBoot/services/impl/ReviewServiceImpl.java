@@ -144,9 +144,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getReviewsByClient(Long clientId) {
-        List<Review> reviews = reviewRepository.findByClientProfile_Id(clientId);
-        return convertToResponseList(reviews);
+    public List<ReviewResponse> getReviewsByClient(UserDetails userDetails) {
+//        List<Review> reviews = reviewRepository.findByProviderProfile_Id(providerId);
+//        return convertToResponseList(reviews);
+        ClientProfile clientProfile = clientProfileRepository.findByUserEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Client profile not found"));
+
+        return reviewRepository.findByClientProfile_Id(clientProfile.getId())
+                .stream()
+                .map(this::mapToReviewResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
