@@ -1,9 +1,9 @@
 package HireCraft.com.SpringBoot.enums;
 
-public enum TransactionStatus {
-    PENDING,
-    SUCCESS,
-    FAILED,
+public enum EscrowStatus {
+    HELD,
+    RELEASED,
+    DISPUTED,
     CANCELLED,
     REFUNDED
 }
