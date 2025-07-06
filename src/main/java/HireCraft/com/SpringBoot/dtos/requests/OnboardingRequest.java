@@ -10,4 +10,16 @@ public class OnboardingRequest {
 
     private String refreshUrl;
     private String returnUrl;
+
+    public @NotNull(message = "Provider ID is required") Long getProviderId() {
+        return providerId;
+    }
+
+    public String getRefreshUrl() {
+        return refreshUrl;
+    }
+
+    public String getReturnUrl() {
+        return returnUrl;
+    }
 }
