@@ -18,6 +18,8 @@ public class ClientBookingViewResponse {
     private String timeAgo;
     private String status;
 
+    private boolean reviewSubmitted;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -52,5 +54,9 @@ public class ClientBookingViewResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setReviewSubmitted(boolean reviewSubmitted) {
+        this.reviewSubmitted = reviewSubmitted;
     }
 }

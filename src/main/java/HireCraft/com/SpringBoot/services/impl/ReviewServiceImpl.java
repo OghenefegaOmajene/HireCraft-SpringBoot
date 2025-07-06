@@ -205,6 +205,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public boolean hasReviewForBooking(Long bookingId, Long clientProfileId) {
+        // Assuming you have a ReviewRepository with a method to check if review exists
+        // Replace this with your actual review repository method
+        return reviewRepository.existsByBookingIdAndClientProfileId(bookingId, clientProfileId);
+    }
+
+    @Override
     public long getReviewCountForProvider(UserDetails userDetails) {
         ServiceProviderProfile providerProfile = serviceProviderProfileRepository.findByUserEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));

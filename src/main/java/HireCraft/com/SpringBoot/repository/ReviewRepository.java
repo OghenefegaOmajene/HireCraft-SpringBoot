@@ -17,6 +17,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByBookingId(Long bookingId);
     Optional<Review> findByBookingId(Long bookingId);
 
+    boolean existsByBookingIdAndClientProfileId(Long bookingId, Long clientProfileId);
+
     // Method to find reviews by booking IDs (useful for checking multiple bookings)
     List<Review> findByBookingIdIn(List<Long> bookingIds);
 }

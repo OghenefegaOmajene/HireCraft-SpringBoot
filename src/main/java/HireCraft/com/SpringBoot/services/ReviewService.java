@@ -20,4 +20,6 @@ public interface ReviewService {
     List<ReviewResponse> getReviewsByClientForProvider(Long clientId, Long providerId); // A client’s review(s) for a specific provider
 
     long getReviewCountForProvider(UserDetails userDetails);
+
+    public boolean hasReviewForBooking(Long bookingId, Long clientProfileId);
 }

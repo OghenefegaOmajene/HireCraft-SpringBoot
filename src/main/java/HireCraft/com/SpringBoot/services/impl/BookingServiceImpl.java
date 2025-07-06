@@ -279,6 +279,9 @@ public class BookingServiceImpl implements BookingService {
         // *** CHANGED THIS LINE ***
         response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
 
+        boolean hasReview = reviewService.hasReviewForBooking(booking.getId(), booking.getClientProfile().getId());
+        response.setReviewSubmitted(hasReview);
+
         return response;
     }
 
@@ -468,6 +471,7 @@ public class BookingServiceImpl implements BookingService {
         response.setStatus(booking.getStatus().name());
 
         response.setTimeAgo(getTimeAgo(booking.getCreatedAt()));
+
         return response;
     }
 
