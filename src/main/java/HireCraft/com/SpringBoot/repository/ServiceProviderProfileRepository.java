@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ServiceProviderProfileRepository extends JpaRepository<ServiceProviderProfile, Long> {
     Optional<ServiceProviderProfile> findByUserId(Long userId);
     Optional<ServiceProviderProfile> findByUserEmail(String email);
+    Optional<ServiceProviderProfile> findByStripeAccountId(String stripeAccountId);
 }

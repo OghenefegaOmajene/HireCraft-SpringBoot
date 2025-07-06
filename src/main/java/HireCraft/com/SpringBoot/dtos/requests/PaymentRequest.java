@@ -1,10 +1,7 @@
 package HireCraft.com.SpringBoot.dtos.requests;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,50 +18,11 @@ public class PaymentRequest {
     @NotNull(message = "Provider ID is required")
     private Long providerId;
 
-    private Long bookingId;
-
     @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
-    @Digits(integer = 8, fraction = 2, message = "Amount format is invalid")
+    @DecimalMin(value = "1.00", message = "Amount must be at least $1.00")
     private BigDecimal amount;
 
-    @NotBlank(message = "Payment method is required")
-    private String paymentMethod;
-
-    @NotBlank(message = "Payment method ID is required")
-    private String paymentMethodId; // Stripe payment method ID
-
+    @NotBlank(message = "Description is required")
+    @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
-
-    public @NotNull(message = "Client ID is required") Long getClientId() {
-        return clientId;
-    }
-
-    public @NotNull(message = "Provider ID is required") Long getProviderId() {
-        return providerId;
-    }
-
-    public Long getBookingId() {
-        return bookingId;
-    }
-
-    public @NotNull(message = "Amount is required") @DecimalMin(value = "0.01", message = "Amount must be greater than 0") @Digits(integer = 8, fraction = 2, message = "Amount format is invalid") BigDecimal getAmount() {
-        return amount;
-    }
-
-    public @NotBlank(message = "Payment method is required") String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public @NotBlank(message = "Payment method ID is required") String getPaymentMethodId() {
-        return paymentMethodId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
-    }
 }

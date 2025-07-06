@@ -11,4 +11,6 @@ public interface ClientProfileRepository extends JpaRepository<ClientProfile, Lo
 
     @Query("SELECT c FROM ClientProfile c WHERE c.user.email = :email")
     Optional<ClientProfile> findByUserEmail(String email);
+
+    Optional<ClientProfile> findByStripeCustomerId(String stripeCustomerId);
 }
