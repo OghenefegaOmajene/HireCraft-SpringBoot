@@ -14,17 +14,19 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findByClientId(Long clientId);
-    List<Transaction> findByProviderId(Long providerId);
+    List<Transaction> findByClientProfile_Id(Long clientId);
+    List<Transaction> findByProviderProfile_Id(Long providerId);
+
     Optional<Transaction> findByStripePaymentIntentId(String paymentIntentId);
     List<Transaction> findByStatus(TransactionStatus status);
 
     @Query("SELECT SUM(t.platformFee) FROM Transaction t WHERE t.status = 'COMPLETED'")
     BigDecimal getTotalPlatformFeesCollected();
 
-    @Query("SELECT t FROM Transaction t WHERE t.client.id = :clientId ORDER BY t.createdAt DESC")
+    // Fixed: Using the correct field names in custom queries
+    @Query("SELECT t FROM Transaction t WHERE t.clientProfile.id = :clientId ORDER BY t.createdAt DESC")
     List<Transaction> findByClientIdOrderByCreatedAtDesc(@Param("clientId") Long clientId);
 
-    @Query("SELECT t FROM Transaction t WHERE t.provider.id = :providerId ORDER BY t.createdAt DESC")
+    @Query("SELECT t FROM Transaction t WHERE t.providerProfile.id = :providerId ORDER BY t.createdAt DESC")
     List<Transaction> findByProviderIdOrderByCreatedAtDesc(@Param("providerId") Long providerId);
 }

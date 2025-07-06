@@ -50,7 +50,83 @@ public class PaymentServiceImpl implements PaymentService {
         this.paystackService = paystackService;
     }
 
-    private static final BigDecimal PLATFORM_FEE_PERCENTAGE = new BigDecimal("0.10"); // 10%
+    private static final BigDecimal PLATFORM_FEE_PERCENTAGE = new BigDecimal("0.03" +
+            ""); // 10%
+
+//    @Override
+//    @Transactional
+//    public PaymentInitiationResponse initiatePayment(PaymentInitiationRequest request) {
+//        try {
+//            // Validate booking exists
+//            Booking booking = bookingRepository.findById(request.getBookingId())
+//                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+//
+//            // Generate unique reference
+//            String reference = "HIRE_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+//
+//            // Create transaction record
+//            PaymentTransaction transaction = createTransaction(
+//                    request.getBookingId(),
+//                    request.getAmount(),
+//                    request.getEmail(),
+//                    TransactionType.BOOKING_PAYMENT
+//            );
+//            transaction.setReference(reference);
+//            transaction = paymentTransactionRepository.save(transaction);
+//
+//            // Initialize payment with Paystack
+//            Map<String, Object> paystackResponse = paystackService.initializeTransaction(
+//                    request.getEmail(),
+//                    request.getAmount(),
+//                    reference,
+//                    request.getCallbackUrl()
+//            );
+//
+//            if (paystackResponse.get("status").equals(true)) {
+//                Map<String, Object> data = (Map<String, Object>) paystackResponse.get("data");
+//
+//                // Update transaction with Paystack reference
+//                transaction.setPaystackReference((String) data.get("reference"));
+//                paymentTransactionRepository.save(transaction);
+//
+//                // Create split payment if needed
+//                if (!request.isUseEscrow()) {
+//                    createSplitPayment(transaction, PLATFORM_FEE_PERCENTAGE);
+//                } else {
+//                    // Create escrow payment
+//                    createEscrowPayment(transaction);
+//                }
+//
+//                return new PaymentInitiationResponse(
+//                        true,
+//                        reference,
+//                        (String) data.get("authorization_url"),
+//                        (String) data.get("access_code"),
+//                        "Payment initiated successfully"
+//                );
+//            } else {
+//                transaction.setStatus(TransactionStatus.FAILED);
+//                paymentTransactionRepository.save(transaction);
+//
+//                return new PaymentInitiationResponse(
+//                        false,
+//                        reference,
+//                        null,
+//                        null,
+//                        "Payment initiation failed: " + paystackResponse.get("message")
+//                );
+//            }
+//        } catch (Exception e) {
+//            log.error("Error initiating payment: ", e);
+//            return new PaymentInitiationResponse(
+//                    false,
+//                    null,
+//                    null,
+//                    null,
+//                    "Payment initiation failed: " + e.getMessage()
+//            );
+//        }
+//    }
 
     @Override
     @Transactional
@@ -60,17 +136,17 @@ public class PaymentServiceImpl implements PaymentService {
             Booking booking = bookingRepository.findById(request.getBookingId())
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-            // Generate unique reference
+            // Generate unique reference FIRST
             String reference = "HIRE_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 
-            // Create transaction record
-            PaymentTransaction transaction = createTransaction(
+            // Create transaction record with reference
+            PaymentTransaction transaction = createTransactionWithReference(
                     request.getBookingId(),
                     request.getAmount(),
                     request.getEmail(),
-                    TransactionType.BOOKING_PAYMENT
+                    TransactionType.BOOKING_PAYMENT,
+                    reference  // Pass the reference to the creation method
             );
-            transaction.setReference(reference);
             transaction = paymentTransactionRepository.save(transaction);
 
             // Initialize payment with Paystack
@@ -125,6 +201,40 @@ public class PaymentServiceImpl implements PaymentService {
                     "Payment initiation failed: " + e.getMessage()
             );
         }
+    }
+
+    // Create a new method that accepts reference as parameter
+    @Override
+    @Transactional
+    public PaymentTransaction createTransactionWithReference(Long bookingId, BigDecimal amount, String email, TransactionType type, String reference) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // Calculate platform fee and provider amount
+        BigDecimal platformFee = amount.multiply(PLATFORM_FEE_PERCENTAGE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal providerAmount = amount.subtract(platformFee);
+
+        PaymentTransaction transaction = new PaymentTransaction();
+        transaction.setReference(reference);  // Set the reference here
+        transaction.setAmount(amount);
+        transaction.setDescription("Payment for booking #" + bookingId);
+        transaction.setStatus(TransactionStatus.PENDING);
+        transaction.setType(type);
+        transaction.setClient(booking.getClientProfile());
+        transaction.setProvider(booking.getProviderProfile());
+        transaction.setBooking(booking);
+        transaction.setPlatformFee(platformFee);
+        transaction.setProviderAmount(providerAmount);
+
+        return paymentTransactionRepository.save(transaction);
+    }
+
+    // Keep the original method for backward compatibility, but generate reference internally
+    @Override
+    @Transactional
+    public PaymentTransaction createTransaction(Long bookingId, BigDecimal amount, String email, TransactionType type) {
+        String reference = "HIRE_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        return createTransactionWithReference(bookingId, amount, email, type, reference);
     }
 
     @Override
@@ -215,29 +325,29 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    @Override
-    @Transactional
-    public PaymentTransaction createTransaction(Long bookingId, BigDecimal amount, String email, TransactionType type) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
-
-        // Calculate platform fee and provider amount
-        BigDecimal platformFee = amount.multiply(PLATFORM_FEE_PERCENTAGE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal providerAmount = amount.subtract(platformFee);
-
-        PaymentTransaction transaction = new PaymentTransaction();
-        transaction.setAmount(amount);
-        transaction.setDescription("Payment for booking #" + bookingId);
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setType(type);
-        transaction.setClient(booking.getClientProfile());
-        transaction.setProvider(booking.getProviderProfile());
-        transaction.setBooking(booking);
-        transaction.setPlatformFee(platformFee);
-        transaction.setProviderAmount(providerAmount);
-
-        return paymentTransactionRepository.save(transaction);
-    }
+//    @Override
+//    @Transactional
+//    public PaymentTransaction createTransaction(Long bookingId, BigDecimal amount, String email, TransactionType type) {
+//        Booking booking = bookingRepository.findById(bookingId)
+//                .orElseThrow(() -> new RuntimeException("Booking not found"));
+//
+//        // Calculate platform fee and provider amount
+//        BigDecimal platformFee = amount.multiply(PLATFORM_FEE_PERCENTAGE).setScale(2, RoundingMode.HALF_UP);
+//        BigDecimal providerAmount = amount.subtract(platformFee);
+//
+//        PaymentTransaction transaction = new PaymentTransaction();
+//        transaction.setAmount(amount);
+//        transaction.setDescription("Payment for booking #" + bookingId);
+//        transaction.setStatus(TransactionStatus.PENDING);
+//        transaction.setType(type);
+//        transaction.setClient(booking.getClientProfile());
+//        transaction.setProvider(booking.getProviderProfile());
+//        transaction.setBooking(booking);
+//        transaction.setPlatformFee(platformFee);
+//        transaction.setProviderAmount(providerAmount);
+//
+//        return paymentTransactionRepository.save(transaction);
+//    }
 
     @Override
     @Transactional

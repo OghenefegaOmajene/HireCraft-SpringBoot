@@ -23,6 +23,7 @@ public interface PaymentService {
 
     // Payment initiation and verification
     PaymentInitiationResponse initiatePayment(PaymentInitiationRequest request);
+    PaymentTransaction createTransactionWithReference(Long bookingId, BigDecimal amount, String email, TransactionType type, String reference);
     PaymentVerificationResponse verifyPayment(String reference);
 
     // Transaction management
