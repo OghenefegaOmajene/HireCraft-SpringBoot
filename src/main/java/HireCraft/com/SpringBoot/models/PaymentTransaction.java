@@ -1,6 +1,7 @@
 package HireCraft.com.SpringBoot.models;
 
 import HireCraft.com.SpringBoot.enums.TransactionStatus;
+import HireCraft.com.SpringBoot.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

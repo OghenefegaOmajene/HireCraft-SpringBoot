@@ -11,6 +11,7 @@ import HireCraft.com.SpringBoot.enums.SplitStatus;
 import HireCraft.com.SpringBoot.enums.TransactionStatus;
 import HireCraft.com.SpringBoot.models.EscrowPayment;
 import HireCraft.com.SpringBoot.models.PaymentTransaction;
+import HireCraft.com.SpringBoot.models.ProviderSubaccount;
 import HireCraft.com.SpringBoot.models.SplitPayment;
 
 import java.math.BigDecimal;

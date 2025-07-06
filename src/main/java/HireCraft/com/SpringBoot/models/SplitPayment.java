@@ -1,5 +1,6 @@
 package HireCraft.com.SpringBoot.models;
 
+import HireCraft.com.SpringBoot.enums.SplitStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
