@@ -1,12 +1,15 @@
 package HireCraft.com.SpringBoot.processor;
 
 import HireCraft.com.SpringBoot.dtos.response.StripePaymentResponse;
+import HireCraft.com.SpringBoot.services.impl.PaymentServiceImpl;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +18,7 @@ import java.math.BigDecimal;
 @Component
 @Slf4j
 public class StripePaymentProcessor {
+    private static final Logger log = LoggerFactory.getLogger(StripePaymentProcessor.class);
 
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;

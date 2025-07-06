@@ -40,6 +40,8 @@ public class ServiceProviderProfile {
     @OneToMany(mappedBy = "providerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews = new HashSet<>();
 
+    private String stripeAccountId;
+
     public Long getId() {
         return id;
     }
@@ -110,6 +112,14 @@ public class ServiceProviderProfile {
 
     public void setReviews(Set<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public String getStripeAccountId() {
+        return stripeAccountId;
+    }
+
+    public void setStripeAccountId(String stripeAccountId) {
+        this.stripeAccountId = stripeAccountId;
     }
 
     //    @OneToOne(fetch = FetchType.LAZY)

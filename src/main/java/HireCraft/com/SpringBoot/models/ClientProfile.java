@@ -20,6 +20,8 @@ public class ClientProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private String stripeCustomerId;
+
     public Long getId() {
         return id;
     }
@@ -42,6 +44,14 @@ public class ClientProfile {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getStripeCustomerId() {
+        return stripeCustomerId;
+    }
+
+    public void setStripeCustomerId(String stripeCustomerId) {
+        this.stripeCustomerId = stripeCustomerId;
     }
 
     //    @OneToOne(fetch = FetchType.LAZY)
