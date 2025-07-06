@@ -4,13 +4,11 @@ import HireCraft.com.SpringBoot.dtos.requests.NotificationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.ReviewRequest;
 import HireCraft.com.SpringBoot.dtos.response.BookingResponse;
 import HireCraft.com.SpringBoot.dtos.response.ReviewResponse;
+import HireCraft.com.SpringBoot.enums.BookingStatus;
 import HireCraft.com.SpringBoot.enums.NotificationType;
 import HireCraft.com.SpringBoot.enums.ReferenceType;
 import HireCraft.com.SpringBoot.models.*;
-import HireCraft.com.SpringBoot.repository.ClientProfileRepository;
-import HireCraft.com.SpringBoot.repository.ReviewRepository;
-import HireCraft.com.SpringBoot.repository.ServiceProviderProfileRepository;
-import HireCraft.com.SpringBoot.repository.UserRepository;
+import HireCraft.com.SpringBoot.repository.*;
 import HireCraft.com.SpringBoot.services.NotificationService;
 import HireCraft.com.SpringBoot.services.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +29,15 @@ public class ReviewServiceImpl implements ReviewService {
     private final ClientProfileRepository clientProfileRepository;
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
     private final NotificationService notificationService;
+    private final BookingRepository bookingRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, NotificationService notificationService) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, NotificationService notificationService, BookingRepository bookingRepository) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.clientProfileRepository = clientProfileRepository;
         this.serviceProviderProfileRepository = serviceProviderProfileRepository;
         this.notificationService = notificationService;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
@@ -50,9 +50,27 @@ public class ReviewServiceImpl implements ReviewService {
         ClientProfile clientProfile = clientProfileRepository.findByUserEmail(user.getEmail())
                 .orElseThrow(() -> new RuntimeException("Client profile not found"));
 
-        // Get service provider profile
-        ServiceProviderProfile serviceProviderProfile = serviceProviderProfileRepository.findById(request.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Provider not found"));
+        // Get the booking by ID
+        Booking booking = bookingRepository.findById(request.getBookingId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // Validate that the booking belongs to the authenticated client
+        if (!booking.getClientProfile().getId().equals(clientProfile.getId())) {
+            throw new RuntimeException("You can only review your own bookings");
+        }
+
+        // Validate that the booking is completed
+        if (!booking.getStatus().equals(BookingStatus.COMPLETED)) {
+            throw new RuntimeException("You can only review completed bookings");
+        }
+
+        // Check if review already exists for this booking
+        if (reviewRepository.existsByBookingId(request.getBookingId())) {
+            throw new RuntimeException("A review already exists for this booking");
+        }
+
+        // Get service provider profile from the booking
+        ServiceProviderProfile serviceProviderProfile = booking.getProviderProfile();
 
         // Build review
         Review review = Review.builder()
@@ -60,6 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .reviewTxt(request.getReviewTxt())
                 .clientProfile(clientProfile)
                 .providerProfile(serviceProviderProfile)
+                .booking(booking) // Link to the booking
                 .build();
 
         // Save and return response
@@ -70,13 +89,13 @@ public class ReviewServiceImpl implements ReviewService {
 
         // Create a notification for the provider
         NotificationRequest notificationRequest = NotificationRequest.builder()
-                .message(String.format("New %.1f-star review received from %s.",
+                .message(String.format("New %.1f star review received from %s.",
                         savedReview.getRatingNo(),
-                        clientProfile.getUser().getFirstName() + " " + clientProfile.getUser().getLastName()))
+                        clientProfile.getUser().getFirstName() + " " + clientProfile.getUser().getLastName())) // Include service type
                 .type(NotificationType.REVIEW_RECEIVED)
                 .userId(providerUserId)
-                .referenceId(savedReview.getId()) // Reference the new review's ID
-                .referenceType(ReferenceType.REVIEW) // Indicate reference type is REVIEW
+                .referenceId(savedReview.getId())
+                .referenceType(ReferenceType.REVIEW)
                 .build();
         notificationService.createNotification(notificationRequest);
 

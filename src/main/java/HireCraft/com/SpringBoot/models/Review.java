@@ -32,6 +32,10 @@ public class Review {
     @JoinColumn(name = "provider_id")
     private ServiceProviderProfile providerProfile;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", referencedColumnName = "id", nullable = true)
+    private Booking booking;
+
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -77,6 +81,14 @@ public class Review {
 
     public void setProviderProfile(ServiceProviderProfile providerProfile) {
         this.providerProfile = providerProfile;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
     }
 
     public LocalDateTime getCreatedAt() {

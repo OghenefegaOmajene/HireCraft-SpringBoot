@@ -20,7 +20,7 @@ public class ReviewRequest {
     @NotBlank(message = "Enter a review")
     private String reviewTxt;
 
-    private Long providerId;
+    private Long bookingId;
 
     public @DecimalMin(value = "1.0", message = "Rating must be at least 1 star") @DecimalMax(value = "5.0", message = "Rating cannot be more than 5 stars") Double getRating() {
         return rating;
@@ -38,11 +38,11 @@ public class ReviewRequest {
         this.reviewTxt = reviewTxt;
     }
 
-    public Long getProviderId() {
-        return providerId;
+    public Long getBookingId() {
+        return bookingId;
     }
 
-    public void setProviderId(Long providerId) {
-        this.providerId = providerId;
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 }
