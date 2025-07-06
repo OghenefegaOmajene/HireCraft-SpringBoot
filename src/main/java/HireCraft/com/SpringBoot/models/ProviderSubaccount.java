@@ -55,4 +55,44 @@ public class ProviderSubaccount {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setProvider(ServiceProviderProfile provider) {
+        this.provider = provider;
+    }
+
+    public void setSubaccountCode(String subaccountCode) {
+        this.subaccountCode = subaccountCode;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public void setSettlementBank(String settlementBank) {
+        this.settlementBank = settlementBank;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public void setPercentageCharge(BigDecimal percentageCharge) {
+        this.percentageCharge = percentageCharge;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

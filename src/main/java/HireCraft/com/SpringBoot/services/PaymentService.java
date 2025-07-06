@@ -9,6 +9,7 @@ import HireCraft.com.SpringBoot.dtos.response.PaymentInitiationResponse;
 import HireCraft.com.SpringBoot.dtos.response.PaymentVerificationResponse;
 import HireCraft.com.SpringBoot.enums.SplitStatus;
 import HireCraft.com.SpringBoot.enums.TransactionStatus;
+import HireCraft.com.SpringBoot.enums.TransactionType;
 import HireCraft.com.SpringBoot.models.EscrowPayment;
 import HireCraft.com.SpringBoot.models.PaymentTransaction;
 import HireCraft.com.SpringBoot.models.ProviderSubaccount;
@@ -53,4 +54,10 @@ public interface PaymentService {
     BigDecimal getTotalEarningsByProvider(Long providerId);
     BigDecimal getTotalPlatformFeeByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     List<PaymentTransaction> getTransactionsByDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    List<PaymentTransaction> getTransactionsByROLE_PROVIDER(Long roleProviderId);
+
+    List<PaymentTransaction> getTransactionsByROLE_CLIENT(Long roleClientId);
+
+    BigDecimal getTotalEarningsByROLE_PROVIDER(Long roleProviderId);
 }

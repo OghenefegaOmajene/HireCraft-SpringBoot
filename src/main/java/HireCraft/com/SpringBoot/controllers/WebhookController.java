@@ -59,7 +59,7 @@ public class WebhookController {
             if (transactionId != null) {
                 Transaction transaction = transactionRepository.findById(Long.parseLong(transactionId)).orElse(null);
                 if (transaction != null) {
-                    transaction.setStatus(TransactionStatus.COMPLETED);
+                    transaction.setStatus(TransactionStatus.SUCCESS);
                     transactionRepository.save(transaction);
                 }
             }

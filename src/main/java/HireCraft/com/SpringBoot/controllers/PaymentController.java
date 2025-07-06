@@ -1,14 +1,18 @@
 package HireCraft.com.SpringBoot.controllers;
 
+import HireCraft.com.SpringBoot.dtos.requests.PaymentInitiationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.WebhookRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentInitiationResponse;
 import HireCraft.com.SpringBoot.dtos.response.PaymentVerificationResponse;
 import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.services.PaymentService;
 import HireCraft.com.SpringBoot.services.PaystackService;
+import HireCraft.com.SpringBoot.services.impl.NotificationServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,15 +27,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payments")
-@RequiredArgsConstructor
-@Slf4j
 public class PaymentController {
 
     private final PaymentService paymentService;
     private final PaystackService paystackService;
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
+
+    public PaymentController(PaymentService paymentService, PaystackService paystackService) {
+        this.paymentService = paymentService;
+        this.paystackService = paystackService;
+    }
 
     @PostMapping("/initiate")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<PaymentInitiationResponse> initiatePayment(@Valid @RequestBody PaymentInitiationRequest request) {
         try {
             PaymentInitiationResponse response = paymentService.initiatePayment(request);
@@ -44,7 +52,7 @@ public class PaymentController {
     }
 
     @GetMapping("/verify/{reference}")
-    @PreAuthorize("hasRole('CLIENT') or hasRole('PROVIDER')")
+    @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ROLE_PROVIDER')")
     public ResponseEntity<PaymentVerificationResponse> verifyPayment(@PathVariable String reference) {
         try {
             PaymentVerificationResponse response = paymentService.verifyPayment(reference);
@@ -57,7 +65,7 @@ public class PaymentController {
     }
 
     @GetMapping("/transaction/{reference}")
-    @PreAuthorize("hasRole('CLIENT') or hasRole('PROVIDER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ROLE_PROVIDER') or hasRole('ADMIN')")
     public ResponseEntity<PaymentTransaction> getTransaction(@PathVariable String reference) {
         try {
             PaymentTransaction transaction = paymentService.getTransactionByReference(reference);
@@ -68,26 +76,26 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/client/{clientId}/transactions")
-    @PreAuthorize("hasRole('CLIENT') or hasRole('ADMIN')")
-    public ResponseEntity<List<PaymentTransaction>> getClientTransactions(@PathVariable Long clientId) {
+    @GetMapping("/ROLE_CLIENT/{ROLE_CLIENTId}/transactions")
+    @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ADMIN')")
+    public ResponseEntity<List<PaymentTransaction>> getROLE_CLIENTTransactions(@PathVariable Long ROLE_CLIENTId) {
         try {
-            List<PaymentTransaction> transactions = paymentService.getTransactionsByClient(clientId);
+            List<PaymentTransaction> transactions = paymentService.getTransactionsByROLE_CLIENT(ROLE_CLIENTId);
             return ResponseEntity.ok(transactions);
         } catch (Exception e) {
-            log.error("Error getting client transactions: ", e);
+            log.error("Error getting ROLE_CLIENT transactions: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/provider/{providerId}/transactions")
-    @PreAuthorize("hasRole('PROVIDER') or hasRole('ADMIN')")
-    public ResponseEntity<List<PaymentTransaction>> getProviderTransactions(@PathVariable Long providerId) {
+    @GetMapping("/ROLE_PROVIDER/{ROLE_PROVIDERId}/transactions")
+    @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ADMIN')")
+    public ResponseEntity<List<PaymentTransaction>> getROLE_PROVIDERTransactions(@PathVariable Long ROLE_PROVIDERId) {
         try {
-            List<PaymentTransaction> transactions = paymentService.getTransactionsByProvider(providerId);
+            List<PaymentTransaction> transactions = paymentService.getTransactionsByROLE_PROVIDER(ROLE_PROVIDERId);
             return ResponseEntity.ok(transactions);
         } catch (Exception e) {
-            log.error("Error getting provider transactions: ", e);
+            log.error("Error getting ROLE_PROVIDER transactions: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -119,19 +127,19 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/provider/{providerId}/earnings")
-    @PreAuthorize("hasRole('PROVIDER') or hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> getProviderEarnings(@PathVariable Long providerId) {
+    @GetMapping("/ROLE_PROVIDER/{ROLE_PROVIDERId}/earnings")
+    @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getROLE_PROVIDEREarnings(@PathVariable Long ROLE_PROVIDERId) {
         try {
-            BigDecimal totalEarnings = paymentService.getTotalEarningsByProvider(providerId);
+            BigDecimal totalEarnings = paymentService.getTotalEarningsByROLE_PROVIDER(ROLE_PROVIDERId);
             Map<String, Object> response = Map.of(
-                    "providerId", providerId,
+                    "ROLE_PROVIDERId", ROLE_PROVIDERId,
                     "totalEarnings", totalEarnings,
                     "currency", "NGN"
             );
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error getting provider earnings: ", e);
+            log.error("Error getting ROLE_PROVIDER earnings: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

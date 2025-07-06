@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
-@AllArgsConstructor
 public class PaymentVerificationResponse {
     private boolean success;
     private String reference;
@@ -16,4 +15,16 @@ public class PaymentVerificationResponse {
     private String gatewayResponse;
     private LocalDateTime paidAt;
     private String message;
+
+    public PaymentVerificationResponse(boolean success, String reference, BigDecimal amount, String status, String gatewayResponse, LocalDateTime paidAt, String message) {
+        this.success = success;
+        this.reference = reference;
+        this.amount = amount;
+        this.status = status;
+        this.gatewayResponse = gatewayResponse;
+        this.paidAt = paidAt;
+        this.message = message;
+    }
+
+
 }

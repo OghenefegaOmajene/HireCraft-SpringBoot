@@ -102,4 +102,164 @@ public class PaymentTransaction {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public String getPaystackReference() {
+        return paystackReference;
+    }
+
+    public void setPaystackReference(String paystackReference) {
+        this.paystackReference = paystackReference;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        this.status = status;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ClientProfile getClient() {
+        return client;
+    }
+
+    public void setClient(ClientProfile client) {
+        this.client = client;
+    }
+
+    public ServiceProviderProfile getProvider() {
+        return provider;
+    }
+
+    public void setProvider(ServiceProviderProfile provider) {
+        this.provider = provider;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public BigDecimal getPlatformFee() {
+        return platformFee;
+    }
+
+    public void setPlatformFee(BigDecimal platformFee) {
+        this.platformFee = platformFee;
+    }
+
+    public BigDecimal getProviderAmount() {
+        return providerAmount;
+    }
+
+    public void setProviderAmount(BigDecimal providerAmount) {
+        this.providerAmount = providerAmount;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaystackTransactionId() {
+        return paystackTransactionId;
+    }
+
+    public void setPaystackTransactionId(String paystackTransactionId) {
+        this.paystackTransactionId = paystackTransactionId;
+    }
+
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public void setAuthorizationCode(String authorizationCode) {
+        this.authorizationCode = authorizationCode;
+    }
+
+    public String getGatewayResponse() {
+        return gatewayResponse;
+    }
+
+    public void setGatewayResponse(String gatewayResponse) {
+        this.gatewayResponse = gatewayResponse;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

@@ -64,4 +64,100 @@ public class EscrowPayment {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public PaymentTransaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(PaymentTransaction transaction) {
+        this.transaction = transaction;
+    }
+
+    public BigDecimal getEscrowAmount() {
+        return escrowAmount;
+    }
+
+    public void setEscrowAmount(BigDecimal escrowAmount) {
+        this.escrowAmount = escrowAmount;
+    }
+
+    public EscrowStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EscrowStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getHeldAt() {
+        return heldAt;
+    }
+
+    public void setHeldAt(LocalDateTime heldAt) {
+        this.heldAt = heldAt;
+    }
+
+    public LocalDateTime getReleasedAt() {
+        return releasedAt;
+    }
+
+    public void setReleasedAt(LocalDateTime releasedAt) {
+        this.releasedAt = releasedAt;
+    }
+
+    public String getReleaseReason() {
+        return releaseReason;
+    }
+
+    public void setReleaseReason(String releaseReason) {
+        this.releaseReason = releaseReason;
+    }
+
+    public String getReleasedBy() {
+        return releasedBy;
+    }
+
+    public void setReleasedBy(String releasedBy) {
+        this.releasedBy = releasedBy;
+    }
+
+    public String getDisputeReason() {
+        return disputeReason;
+    }
+
+    public void setDisputeReason(String disputeReason) {
+        this.disputeReason = disputeReason;
+    }
+
+    public LocalDateTime getAutoReleaseDate() {
+        return autoReleaseDate;
+    }
+
+    public void setAutoReleaseDate(LocalDateTime autoReleaseDate) {
+        this.autoReleaseDate = autoReleaseDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

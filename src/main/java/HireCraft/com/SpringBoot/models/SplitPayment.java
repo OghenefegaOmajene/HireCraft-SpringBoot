@@ -57,4 +57,84 @@ public class SplitPayment {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public PaymentTransaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(PaymentTransaction transaction) {
+        this.transaction = transaction;
+    }
+
+    public String getSplitCode() {
+        return splitCode;
+    }
+
+    public void setSplitCode(String splitCode) {
+        this.splitCode = splitCode;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getPlatformAmount() {
+        return platformAmount;
+    }
+
+    public void setPlatformAmount(BigDecimal platformAmount) {
+        this.platformAmount = platformAmount;
+    }
+
+    public BigDecimal getProviderAmount() {
+        return providerAmount;
+    }
+
+    public void setProviderAmount(BigDecimal providerAmount) {
+        this.providerAmount = providerAmount;
+    }
+
+    public BigDecimal getPlatformPercentage() {
+        return platformPercentage;
+    }
+
+    public void setPlatformPercentage(BigDecimal platformPercentage) {
+        this.platformPercentage = platformPercentage;
+    }
+
+    public SplitStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SplitStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

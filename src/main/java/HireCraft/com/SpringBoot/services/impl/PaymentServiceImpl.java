@@ -1,22 +1,24 @@
 package HireCraft.com.SpringBoot.services.impl;
 
-
+import HireCraft.com.SpringBoot.dtos.requests.EscrowReleaseRequest;
 import HireCraft.com.SpringBoot.dtos.requests.PaymentInitiationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.SubaccountCreationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.WebhookRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentInitiationResponse;
 import HireCraft.com.SpringBoot.dtos.response.PaymentVerificationResponse;
-import HireCraft.com.SpringBoot.enums.BookingStatus;
-import HireCraft.com.SpringBoot.enums.TransactionStatus;
+import HireCraft.com.SpringBoot.enums.*;
 import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.repository.*;
 import HireCraft.com.SpringBoot.services.PaymentService;
 import HireCraft.com.SpringBoot.services.PaystackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Book;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -25,10 +27,9 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
-public class PaymentServiceImpl implements PaymentService {
 
+public class PaymentServiceImpl implements PaymentService {
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final SplitPaymentRepository splitPaymentRepository;
     private final EscrowPaymentRepository escrowPaymentRepository;
@@ -38,6 +39,17 @@ public class PaymentServiceImpl implements PaymentService {
     private final ServiceProviderProfileRepository serviceProviderProfileRepository;
     private final PaystackService paystackService;
 
+    public PaymentServiceImpl(PaymentTransactionRepository paymentTransactionRepository, SplitPaymentRepository splitPaymentRepository, EscrowPaymentRepository escrowPaymentRepository, ProviderSubaccountRepository providerSubaccountRepository, BookingRepository bookingRepository, ClientProfileRepository clientProfileRepository, ServiceProviderProfileRepository serviceProviderProfileRepository, PaystackService paystackService) {
+        this.paymentTransactionRepository = paymentTransactionRepository;
+        this.splitPaymentRepository = splitPaymentRepository;
+        this.escrowPaymentRepository = escrowPaymentRepository;
+        this.providerSubaccountRepository = providerSubaccountRepository;
+        this.bookingRepository = bookingRepository;
+        this.clientProfileRepository = clientProfileRepository;
+        this.serviceProviderProfileRepository = serviceProviderProfileRepository;
+        this.paystackService = paystackService;
+    }
+
     private static final BigDecimal PLATFORM_FEE_PERCENTAGE = new BigDecimal("0.10"); // 10%
 
     @Override
@@ -45,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentInitiationResponse initiatePayment(PaymentInitiationRequest request) {
         try {
             // Validate booking exists
-            Booking booking = BookingRepository.findById(request.getBookingId())
+            Booking booking = bookingRepository.findById(request.getBookingId())
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
 
             // Generate unique reference
@@ -148,7 +160,7 @@ public class PaymentServiceImpl implements PaymentService {
                     Booking booking = transaction.getBooking();
                     if (booking != null) {
                         booking.setStatus(BookingStatus.COMPLETED);
-                        BookingRepository.save(booking);
+                        bookingRepository.save(booking);
                     }
 
                     // Handle split payment or escrow
@@ -206,7 +218,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentTransaction createTransaction(Long bookingId, BigDecimal amount, String email, TransactionType type) {
-        Booking booking = BookingRepository.findById(bookingId)
+        Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         // Calculate platform fee and provider amount
@@ -218,8 +230,8 @@ public class PaymentServiceImpl implements PaymentService {
         transaction.setDescription("Payment for booking #" + bookingId);
         transaction.setStatus(TransactionStatus.PENDING);
         transaction.setType(type);
-        transaction.setClient(booking.getClient());
-        transaction.setProvider(booking.getProvider());
+        transaction.setClient(booking.getClientProfile());
+        transaction.setProvider(booking.getProviderProfile());
         transaction.setBooking(booking);
         transaction.setPlatformFee(platformFee);
         transaction.setProviderAmount(providerAmount);
@@ -362,7 +374,7 @@ public class PaymentServiceImpl implements PaymentService {
                 subaccount.setSettlementBank(request.getSettlementBank());
                 subaccount.setAccountNumber(request.getAccountNumber());
                 subaccount.setPercentageCharge(request.getPercentageCharge());
-                subaccount.setIsActive(true);
+                subaccount.setActive(true);
 
                 return providerSubaccountRepository.save(subaccount);
             } else {
@@ -384,7 +396,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void updateSubaccountStatus(Long providerId, boolean isActive) {
         ProviderSubaccount subaccount = getProviderSubaccount(providerId);
-        subaccount.setIsActive(isActive);
+        subaccount.setActive(isActive);
         providerSubaccountRepository.save(subaccount);
     }
 
@@ -469,9 +481,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Update booking status
         if (transaction.getBooking() != null) {
-            ServiceBooking booking = transaction.getBooking();
-            booking.setStatus(BookingStatus.CONFIRMED);
-            BookingRepository.save(booking);
+            Booking booking = transaction.getBooking();
+            booking.setStatus(BookingStatus.COMPLETED);
+            bookingRepository.save(booking);
         }
     }
 
@@ -493,5 +505,20 @@ public class PaymentServiceImpl implements PaymentService {
             return clientTransactions;
         }
         return paymentTransactionRepository.findByProviderIdAndDateRange(userId, startDate, endDate);
+    }
+
+    @Override
+    public List<PaymentTransaction> getTransactionsByROLE_PROVIDER(Long roleProviderId) {
+        return List.of();
+    }
+
+    @Override
+    public List<PaymentTransaction> getTransactionsByROLE_CLIENT(Long roleClientId) {
+        return List.of();
+    }
+
+    @Override
+    public BigDecimal getTotalEarningsByROLE_PROVIDER(Long roleProviderId) {
+        return null;
     }
 }

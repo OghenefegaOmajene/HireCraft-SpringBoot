@@ -15,4 +15,28 @@ public class PaymentInitiationRequest {
     private String callbackUrl;
     private String currency = "NGN";
     private boolean useEscrow = false;
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public boolean isUseEscrow() {
+        return useEscrow;
+    }
 }
