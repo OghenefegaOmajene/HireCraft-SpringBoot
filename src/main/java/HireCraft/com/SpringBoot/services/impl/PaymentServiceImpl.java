@@ -375,6 +375,40 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentTransactionRepository.findByProviderIdAndStatus(providerId, TransactionStatus.SUCCESS);
     }
 
+    // FIX: Implement the missing methods properly
+    @Override
+    public List<PaymentTransaction> getTransactionsByROLE_CLIENT(Long roleClientId) {
+        try {
+            // Use the existing method but map the naming convention
+            return paymentTransactionRepository.findByClientIdAndStatus(roleClientId, TransactionStatus.SUCCESS);
+        } catch (Exception e) {
+            log.error("Error getting client transactions: ", e);
+            return List.of(); // Return empty list instead of null
+        }
+    }
+
+    @Override
+    public List<PaymentTransaction> getTransactionsByROLE_PROVIDER(Long roleProviderId) {
+        try {
+            // Use the existing method but map the naming convention
+            return paymentTransactionRepository.findByProviderIdAndStatus(roleProviderId, TransactionStatus.SUCCESS);
+        } catch (Exception e) {
+            log.error("Error getting provider transactions: ", e);
+            return List.of(); // Return empty list instead of null
+        }
+    }
+
+    @Override
+    public BigDecimal getTotalEarningsByROLE_PROVIDER(Long roleProviderId) {
+        try {
+            // Use the existing method but map the naming convention
+            return paymentTransactionRepository.getTotalEarningsByProvider(roleProviderId);
+        } catch (Exception e) {
+            log.error("Error getting provider earnings: ", e);
+            return BigDecimal.ZERO; // Return zero instead of null
+        }
+    }
+
     @Override
     @Transactional
     public SplitPayment createSplitPayment(PaymentTransaction transaction, BigDecimal platformPercentage) {
@@ -617,18 +651,4 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentTransactionRepository.findByProviderIdAndDateRange(userId, startDate, endDate);
     }
 
-    @Override
-    public List<PaymentTransaction> getTransactionsByROLE_PROVIDER(Long roleProviderId) {
-        return List.of();
-    }
-
-    @Override
-    public List<PaymentTransaction> getTransactionsByROLE_CLIENT(Long roleClientId) {
-        return List.of();
-    }
-
-    @Override
-    public BigDecimal getTotalEarningsByROLE_PROVIDER(Long roleProviderId) {
-        return null;
-    }
 }

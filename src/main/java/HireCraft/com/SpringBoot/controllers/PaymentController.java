@@ -3,6 +3,7 @@ package HireCraft.com.SpringBoot.controllers;
 import HireCraft.com.SpringBoot.dtos.requests.PaymentInitiationRequest;
 import HireCraft.com.SpringBoot.dtos.requests.WebhookRequest;
 import HireCraft.com.SpringBoot.dtos.response.PaymentInitiationResponse;
+import HireCraft.com.SpringBoot.dtos.response.PaymentTransactionResponse;
 import HireCraft.com.SpringBoot.dtos.response.PaymentVerificationResponse;
 import HireCraft.com.SpringBoot.models.*;
 import HireCraft.com.SpringBoot.services.PaymentService;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -66,36 +68,43 @@ public class PaymentController {
 
     @GetMapping("/transaction/{reference}")
     @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ROLE_PROVIDER') or hasRole('ADMIN')")
-    public ResponseEntity<PaymentTransaction> getTransaction(@PathVariable String reference) {
+    public ResponseEntity<PaymentTransactionResponse> getTransaction(@PathVariable String reference) {
         try {
             PaymentTransaction transaction = paymentService.getTransactionByReference(reference);
-            return ResponseEntity.ok(transaction);
+            PaymentTransactionResponse response = PaymentTransactionResponse.fromEntitySafe(transaction);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error getting transaction: ", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    @GetMapping("/ROLE_CLIENT/{ROLE_CLIENTId}/transactions")
+    @GetMapping("/client/{clientId}/transactions")
     @PreAuthorize("hasRole('ROLE_CLIENT') or hasRole('ADMIN')")
-    public ResponseEntity<List<PaymentTransaction>> getROLE_CLIENTTransactions(@PathVariable Long ROLE_CLIENTId) {
+    public ResponseEntity<List<PaymentTransactionResponse>> getClientTransactions(@PathVariable Long clientId) {
         try {
-            List<PaymentTransaction> transactions = paymentService.getTransactionsByROLE_CLIENT(ROLE_CLIENTId);
-            return ResponseEntity.ok(transactions);
+            List<PaymentTransaction> transactions = paymentService.getTransactionsByClient(clientId);
+            List<PaymentTransactionResponse> response = transactions.stream()
+                    .map(PaymentTransactionResponse::fromEntitySafe)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error getting ROLE_CLIENT transactions: ", e);
+            log.error("Error getting client transactions: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/ROLE_PROVIDER/{ROLE_PROVIDERId}/transactions")
+    @GetMapping("/provider/{providerId}/transactions")
     @PreAuthorize("hasRole('ROLE_PROVIDER') or hasRole('ADMIN')")
-    public ResponseEntity<List<PaymentTransaction>> getROLE_PROVIDERTransactions(@PathVariable Long ROLE_PROVIDERId) {
+    public ResponseEntity<List<PaymentTransactionResponse>> getProviderTransactions(@PathVariable Long providerId) {
         try {
-            List<PaymentTransaction> transactions = paymentService.getTransactionsByROLE_PROVIDER(ROLE_PROVIDERId);
-            return ResponseEntity.ok(transactions);
+            List<PaymentTransaction> transactions = paymentService.getTransactionsByProvider(providerId);
+            List<PaymentTransactionResponse> response = transactions.stream()
+                    .map(PaymentTransactionResponse::fromEntitySafe)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error getting ROLE_PROVIDER transactions: ", e);
+            log.error("Error getting provider transactions: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
